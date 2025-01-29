@@ -1,13 +1,15 @@
 // quiz.js
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyr3tWr3htAiclJwx2R5KjwrPA5eTBIvniaA3dz0ILhs2FNh3LtdDGYZqXc4f4WVuQD5g/exec"; // Replace with your actual deployment URL
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9vIU4Nf9bXVCoNqBB3G-cziEz1OY8p8hfKdLSt1jtsuwTs6qZ2BD7-LJ0EOtWKub9pg/exec";
 
 let selectedQuizType = '';
+
 let quizQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
 
-// Utility functions
+// Utility function to shuffle an array in place
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -15,22 +17,28 @@ function shuffleArray(array) {
   }
 }
 
+// Function to shuffle options for a question and update correctAnswerIndex/Indices
 function shuffleOptions(question) {
-  if (question.type === 'true_false') return;
+  if (question.type === 'true_false') {
+    // No need to shuffle 'true_false' options
+    return;
+  }
 
+  // For 'multiple_choice' and 'check_all_that_apply' questions
   const originalOptions = [...question.options];
   shuffleArray(question.options);
 
   if (question.type === 'multiple_choice') {
+    // Find the new index of the correct answer
     const correctOption = originalOptions[question.correctAnswerIndex];
     question.correctAnswerIndex = question.options.indexOf(correctOption);
   } else if (question.type === 'check_all_that_apply') {
+    // Find the new indices of the correct answers
     const correctOptions = question.correctAnswerIndices.map(idx => originalOptions[idx]);
     question.correctAnswerIndices = correctOptions.map(opt => question.options.indexOf(opt));
   }
 }
 
-// Initial setup
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('ldap-field').style.display = 'block';
   document.getElementById('ldap-next-button').addEventListener('click', handleLdapNext);
@@ -39,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Core quiz functionality
 function handleLdapNext() {
   const ldapInput = document.getElementById('ldap-input').value.trim();
   if (!ldapInput) {
@@ -50,33 +57,46 @@ function handleLdapNext() {
   document.getElementById('ldap-field').style.display = 'none';
   document.getElementById('question-count-selection').style.display = 'block';
 
-  document.querySelectorAll('#question-count-selection button').forEach(btn => {
+  const countButtons = document.querySelectorAll('#question-count-selection button');
+  countButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      startQuiz(parseInt(btn.dataset.start), parseInt(btn.dataset.end));
+      const start = parseInt(btn.dataset.start);
+      const end = parseInt(btn.dataset.end);
+      startQuiz(start, end);
     });
   });
 }
 
 function startQuiz(start, end) {
-  const quizTypes = {
-    '0-15': 'Easy',
-    '15-40': 'Medium',
-    '40-50': 'Hard'
-  };
-  selectedQuizType = quizTypes[`${start}-${end}`];
+  // Determine quiz type based on start and end
+  if (start === 0 && end === 15) {
+    selectedQuizType = 'Easy';
+  } else if (start === 15 && end === 40) {
+    selectedQuizType = 'Medium';
+  } else if (start === 40 && end === 50) {
+    selectedQuizType = 'Hard';
+  }
   
   document.getElementById('question-count-selection').style.display = 'none';
   document.getElementById('quiz-content').style.display = 'block';
 
+  // Select the subset of questions based on start and end
   const selectedQuestions = window.questionBank.slice(start, end);
+
+  // Shuffle the selected questions
   shuffleArray(selectedQuestions);
-  selectedQuestions.forEach(shuffleOptions);
+
+  // Shuffle options for applicable question types
+  selectedQuestions.forEach(question => {
+    shuffleOptions(question);
+  });
 
   quizQuestions = selectedQuestions;
   currentQuestionIndex = 0;
   score = 0;
   userAnswers = [];
 
+  // Remove any existing event listeners to prevent multiple triggers
   const nextButton = document.getElementById('next-button');
   nextButton.replaceWith(nextButton.cloneNode(true));
   document.getElementById('next-button').addEventListener('click', handleNextButton);
@@ -84,299 +104,314 @@ function startQuiz(start, end) {
   displayQuestion(currentQuestionIndex);
 }
 
-// Question display logic
 function displayQuestion(index) {
   const question = quizQuestions[index];
   document.getElementById('question-number').textContent = `Question ${index + 1} of ${quizQuestions.length}`;
-  document.getElementById('question-type').textContent = `Type: ${formatQuestionType(question.type)}`;
-  document.getElementById('question-text').textContent = question.question;
 
+  // Display Question Type
+  document.getElementById('question-type').textContent = `Type: ${formatQuestionType(question.type)}`;
+
+  document.getElementById('question-text').textContent = question.question;
   const optionsList = document.getElementById('options-list');
   optionsList.innerHTML = '';
-  
-  question.userSelectedAnswerIndices = [];
-  question.userSelectedAnswerIndex = null;
 
+  // Clear any previous selections
+  question.userSelectedAnswerIndices = question.userSelectedAnswerIndices || [];
+  question.userSelectedAnswerIndex = question.userSelectedAnswerIndex || null;
+
+  // Reset action buttons
   const nextButton = document.getElementById('next-button');
   nextButton.disabled = true;
-  nextButton.textContent = index === quizQuestions.length - 1 ? 'Submit' : 'Next';
 
-  renderQuestionOptions(question, optionsList);
-  updateProgressBar(index);
+  // Change button text to "Submit" if it's the last question
+  if (index === quizQuestions.length - 1) {
+    nextButton.textContent = 'Submit';
+  } else {
+    nextButton.textContent = 'Next';
+  }
+
+  // Render options based on question type
+  if (question.type === 'true_false') {
+    renderTrueFalseOptions(question, optionsList);
+  } else if (question.type === 'multiple_choice') {
+    renderMultipleChoiceOptions(question, optionsList);
+  } else if (question.type === 'check_all_that_apply') {
+    renderCheckAllThatApplyOptions(question, optionsList);
+  }
+
+  // Update progress bar
+  const progressPercentage = ((index + 1) / quizQuestions.length) * 100;
+  document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
 }
 
-function renderQuestionOptions(question, optionsList) {
-  if (question.type === 'true_false') {
-    optionsList.append(
-      createOptionButton(question, 0, 'True'),
-      createOptionButton(question, 1, 'False')
-    );
-  } else {
-    question.options.forEach((option, i) => {
-      optionsList.appendChild(createOptionButton(
-        question, 
-        i, 
-        option, 
-        question.type === 'check_all_that_apply'
-      ));
-    });
-  }
+function renderTrueFalseOptions(question, optionsList) {
+  const trueButton = createOptionButton(question, 0, 'True');
+  const falseButton = createOptionButton(question, 1, 'False');
+  optionsList.appendChild(trueButton);
+  optionsList.appendChild(falseButton);
+}
+
+function renderMultipleChoiceOptions(question, optionsList) {
+  question.options.forEach((option, optionIndex) => {
+    const optionButton = createOptionButton(question, optionIndex, option);
+    optionsList.appendChild(optionButton);
+  });
+}
+
+function renderCheckAllThatApplyOptions(question, optionsList) {
+  question.options.forEach((option, optionIndex) => {
+    const optionButton = createOptionButton(question, optionIndex, option, true);
+    optionsList.appendChild(optionButton);
+  });
 }
 
 function createOptionButton(question, index, text, isCheckbox = false) {
   const button = document.createElement('button');
-  button.className = 'option-button';
+  button.classList.add('option-button');
   button.textContent = text;
   button.dataset.optionIndex = index;
 
+  // If previously selected, add the selected class
   if (question.type === 'check_all_that_apply') {
     if (question.userSelectedAnswerIndices.includes(index)) {
       button.classList.add('selected-answer');
     }
-  } else if (question.userSelectedAnswerIndex === index) {
-    button.classList.add('selected-answer');
+  } else {
+    if (question.userSelectedAnswerIndex === index) {
+      button.classList.add('selected-answer');
+    }
   }
 
   button.addEventListener('click', () => handleOptionClick(question, button));
+
   return button;
 }
 
-// Answer handling
 function handleOptionClick(question, button) {
   const selectedIndex = parseInt(button.dataset.optionIndex);
-  const nextButton = document.getElementById('next-button');
 
-  if (['multiple_choice', 'true_false'].includes(question.type)) {
-    document.querySelectorAll('#options-list .option-button').forEach(btn => {
+  if (question.type === 'multiple_choice' || question.type === 'true_false') {
+    // Deselect all other buttons
+    const allButtons = document.querySelectorAll('#options-list .option-button');
+    allButtons.forEach(btn => {
       btn.classList.remove('selected-answer');
     });
+    // Select the clicked button
     button.classList.add('selected-answer');
     question.userSelectedAnswerIndex = selectedIndex;
-    nextButton.disabled = false;
-  } else {
-    button.classList.toggle('selected-answer');
-    const index = question.userSelectedAnswerIndices.indexOf(selectedIndex);
-    if (index > -1) {
-      question.userSelectedAnswerIndices.splice(index, 1);
+    question.userSelectedAnswerIndices = [];
+
+    // Enable Next/Submit button
+    document.getElementById('next-button').disabled = false;
+  } else if (question.type === 'check_all_that_apply') {
+    if (button.classList.contains('selected-answer')) {
+      button.classList.remove('selected-answer');
+      const idx = question.userSelectedAnswerIndices.indexOf(selectedIndex);
+      if (idx > -1) {
+        question.userSelectedAnswerIndices.splice(idx, 1);
+      }
     } else {
+      button.classList.add('selected-answer');
       question.userSelectedAnswerIndices.push(selectedIndex);
     }
-    nextButton.disabled = question.userSelectedAnswerIndices.length === 0;
+
+    // Enable Next/Submit button if at least one selection
+    if (question.userSelectedAnswerIndices.length > 0) {
+      document.getElementById('next-button').disabled = false;
+    } else {
+      document.getElementById('next-button').disabled = true;
+    }
   }
 }
 
-// Navigation and scoring
 function handleNextButton() {
   const question = quizQuestions[currentQuestionIndex];
-  const isCorrect = checkAnswerCorrectness(question);
-  
-  if (isCorrect) score++;
-  
-  userAnswers.push(createAnswerObject(question, isCorrect));
-  
-  if (++currentQuestionIndex < quizQuestions.length) {
-    displayQuestion(currentQuestionIndex);
-  } else {
-    showFinalScore();
-  }
-}
 
-function checkAnswerCorrectness(question) {
   if (question.type === 'check_all_that_apply') {
-    return arraysEqual(
-      [...question.userSelectedAnswerIndices].sort(),
-      [...question.correctAnswerIndices].sort()
-    );
+    const selected = question.userSelectedAnswerIndices;
+    const correct = question.correctAnswerIndices;
+
+    const isCorrect = arraysEqual(selected.sort(), correct.sort());
+
+    if (isCorrect) {
+      score++;
+    }
+
+    // Store the user's answer
+    userAnswers.push({
+      question: question.question,
+      type: question.type,
+      selected: selected,
+      correct: correct,
+      explanation: question.explanation,
+      options: question.options,
+      isCorrect: isCorrect
+    });
+
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizQuestions.length) {
+      displayQuestion(currentQuestionIndex);
+    } else {
+      showFinalScore();
+    }
+  } else {
+    // For 'multiple_choice' and 'true_false'
+    const selected = question.userSelectedAnswerIndex;
+    const correct = question.correctAnswerIndex;
+
+    const isCorrect = selected === correct;
+
+    if (isCorrect) {
+      score++;
+    }
+
+    // Store the user's answer
+    userAnswers.push({
+      question: question.question,
+      type: question.type,
+      selected: selected,
+      correct: correct,
+      explanation: question.explanation,
+      options: question.options,
+      isCorrect: isCorrect
+    });
+
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizQuestions.length) {
+      displayQuestion(currentQuestionIndex);
+    } else {
+      showFinalScore();
+    }
   }
-  return question.userSelectedAnswerIndex === question.correctAnswerIndex;
 }
 
-function createAnswerObject(question, isCorrect) {
-  return {
-    question: question.question,
-    type: question.type,
-    selected: question.type === 'check_all_that_apply' 
-      ? [...question.userSelectedAnswerIndices] 
-      : question.userSelectedAnswerIndex,
-    correct: question.type === 'check_all_that_apply' 
-      ? [...question.correctAnswerIndices] 
-      : question.correctAnswerIndex,
-    options: [...question.options],
-    explanation: question.explanation,
-    isCorrect: isCorrect
-  };
-}
-
-// Final results and submission
 function showFinalScore() {
   const percentage = ((score / quizQuestions.length) * 100).toFixed(2);
   const ldap = document.getElementById('ldap-input').value.trim();
   const quizContainer = document.getElementById('quiz-container');
 
-  submitResults(ldap, percentage);
-  buildResultsSummary(ldap, percentage);
-  setupPDFDownload(ldap);
-  quizContainer.innerHTML = createResultsHTML(ldap, percentage);
-}
-
-function submitResults(ldap, percentage) {
-  const payload = {
+  // Prepare the data to send
+  const data = {
     ldap: ldap,
     quizType: selectedQuizType,
-    score: `${score}/${quizQuestions.length}`
+    // Remove dateOfTest entirely - we'll use server timestamp
+    score: `${score}/${quizQuestions.length} (${percentage}%)`
   };
-
-  console.log('Submitting results:', payload);
-
+  
+  // Send the POST request
   fetch(WEB_APP_URL, {
     method: 'POST',
-    mode: 'cors',
+    mode: 'no-cors', // Important for GitHub Pages
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      ldap: ldap,
+      quizType: selectedQuizType,
+      score: `${score}/${quizQuestions.length}` // Remove percentage
+    })
   })
-  .then(handleResponse)
-  .then(handleSuccess)
-  .catch(handleError);
-}
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  })
+  .then(result => {
+    if (result.result === 'success') {
+      alert('Results saved successfully!');
+    } else {
+      throw new Error(result.message || 'Unknown server error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert(`Error saving results: ${error.message}`);
+  });
 
-function handleResponse(response) {
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
-}
-
-function handleSuccess(result) {
-  console.log('Server response:', result);
-  if (result.result === 'success') {
-    alert('Results saved successfully!');
-  } else {
-    throw new Error(result.message || 'Unknown server error');
-  }
-}
-
-function handleError(error) {
-  console.error('Submission error:', error);
-  alert(`Error saving results: ${error.message}`);
-}
-
-// Results display
-function buildResultsSummary(ldap, percentage) {
+  // Now proceed with building the summary
   let summaryHTML = `
   <div id="pdf-content">
-    <div class="score-header">
-      <h2>Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
-      <h3>LDAP: ${ldap}</h3>
+    <div style="margin-bottom: 20px;">
+      <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
+      <h3 style="margin: 0;">LDAP: ${ldap}</h3>
     </div>
     <div id="summary"><h2>Detailed Summary:</h2><ul>`;
 
   userAnswers.forEach((answer, index) => {
-    summaryHTML += createAnswerHTML(answer, index + 1);
+    let userAnswerText = '';
+    let correctAnswerText = '';
+
+    if (answer.type === 'check_all_that_apply') {
+      userAnswerText = answer.selected.length > 0 ? answer.selected.map(idx => answer.options[idx]).join(', ') : 'No answer selected';
+      correctAnswerText = answer.correct.map(idx => answer.options[idx]).join(', ');
+    } else {
+      userAnswerText = answer.options[answer.selected] || 'No answer selected';
+      correctAnswerText = answer.options[answer.correct];
+    }
+
+    summaryHTML += `
+      <li class="summary-item">
+        <div class="question-block">
+          <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
+          <p class="question-text">Question ${index + 1}: ${answer.question}</p>
+          <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerText}</p>
+          ${!answer.isCorrect ? (answer.type === 'check_all_that_apply' ? `<p class="correct">Correct Answers: ${correctAnswerText}</p>` : `<p class="correct">Correct Answer: ${correctAnswerText}</p>`) : ''}
+          <p class="explanation">Explanation: ${answer.explanation}</p>
+        </div>
+      </li>`;
   });
 
   summaryHTML += `</ul></div></div>
     <button id="download-pdf-button">Download PDF</button>
     <button id="restart-button">Restart Quiz</button>`;
 
-  return summaryHTML;
-}
+  quizContainer.innerHTML = summaryHTML;
 
-function createAnswerHTML(answer, number) {
-  const [userAnswer, correctAnswer] = getAnswerTexts(answer);
-  return `
-    <li class="summary-item">
-      <div class="question-block">
-        <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
-        <p class="question-text">Question ${number}: ${answer.question}</p>
-        <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswer}</p>
-        ${!answer.isCorrect ? `<p class="correct">${answer.type === 'check_all_that_apply' ? 'Correct Answers' : 'Correct Answer'}: ${correctAnswer}</p>` : ''}
-        <p class="explanation">Explanation: ${answer.explanation}</p>
-      </div>
-    </li>`;
-}
-
-function getAnswerTexts(answer) {
-  if (answer.type === 'check_all_that_apply') {
-    return [
-      answer.selected.length 
-        ? answer.selected.map(i => answer.options[i]).join(', ') 
-        : 'No answer selected',
-      answer.correct.map(i => answer.options[i]).join(', ')
-    ];
-  }
-  return [
-    answer.options[answer.selected] || 'No answer selected',
-    answer.options[answer.correct]
-  ];
-}
-
-// PDF generation
-function setupPDFDownload(ldap) {
   document.getElementById('download-pdf-button').addEventListener('click', () => {
     const element = document.getElementById('pdf-content');
-    const clone = element.cloneNode(true);
-    
-    document.body.appendChild(clone);
-    
-    html2pdf().set({
-      margin: [10, 15, 10, 15],
-      filename: `quiz-results-${ldap}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
+    const opt = {
+      margin:       [10, 15, 10, 15], // Reduced margins
+      filename:     `quiz-results-${ldap}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { 
         scale: 2,
+        logging: true,
         useCORS: true,
         letterRendering: true
       },
-      jsPDF: { 
+      jsPDF:        { 
         unit: 'mm',
         format: 'a4',
         orientation: 'portrait' 
+      },
+      pagebreak:    { 
+        mode: ['css', 'avoid-all'],
+        avoid: '.question-block'
       }
-    }).from(clone).save().then(() => {
+    };
+    
+    const clone = element.cloneNode(true);
+    document.body.appendChild(clone);
+    html2pdf().set(opt).from(clone).save().then(() => {
       document.body.removeChild(clone);
     });
   });
+  
+  document.getElementById('restart-button').addEventListener('click', () => location.reload());
 }
 
-// Helper functions
 function formatQuestionType(type) {
-  const types = {
-    'multiple_choice': 'Multiple Choice',
-    'true_false': 'True/False',
-    'check_all_that_apply': 'Check All That Apply'
-  };
-  return types[type] || 'Unknown Type';
+  switch(type) {
+    case 'multiple_choice':
+      return 'Multiple Choice';
+    case 'true_false':
+      return 'True/False';
+    case 'check_all_that_apply':
+      return 'Check All That Apply';
+    default:
+      return 'Unknown Type';
+  }
 }
 
 function arraysEqual(a, b) {
-  return a.length === b.length && a.every((val, idx) => val === b[idx]);
+  return a.length === b.length && a.every((val, index) => val === b[index]);
 }
-
-function updateProgressBar(index) {
-  document.getElementById('progress-bar').style.width = 
-    `${((index + 1) / quizQuestions.length) * 100}%`;
-}
-
-function createResultsHTML(ldap, percentage) {
-  return `
-  <div id="pdf-content">
-    <div class="score-header">
-      <h2>Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
-      <h3>LDAP: ${ldap}</h3>
-    </div>
-    <div id="summary"><h2>Detailed Summary:</h2><ul>
-      ${userAnswers.map((answer, i) => createAnswerHTML(answer, i + 1)).join('')}
-    </ul></div>
-    <button id="download-pdf-button">Download PDF</button>
-    <button id="restart-button">Restart Quiz</button>
-  </div>`;
-}
-
-// Restart handler
-document.addEventListener('click', (e) => {
-  if (e.target.id === 'restart-button') {
-    location.reload();
-  }
-});
