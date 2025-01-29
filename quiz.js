@@ -1,6 +1,6 @@
 // quiz.js
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9vIU4Nf9bXVCoNqBB3G-cziEz1OY8p8hfKdLSt1jtsuwTs6qZ2BD7-LJ0EOtWKub9pg/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbywOfW8N8h2TCw4gG_8V1lMOxZTrdD6WlPWrM12bwkN9FFeEEZBoQJYfkxImtBR7As9/exec";
 
 let selectedQuizType = '';
 
