@@ -299,32 +299,28 @@ function showFinalScore() {
   };
   
   // Send the POST request
-  fetch(WEB_APP_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      ldap: ldap,
-      quizType: selectedQuizType,
-      score: `${score}/${quizQuestions.length}` // Format: "15/40"
-    })
-  })
-  .then(response => {
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return response.json();
-  })
-  .then(result => {
-    if (result.result === 'success') {
-      alert('Results saved successfully!');
-    } else {
-      throw new Error(result.message || 'Server error');
-    }
-  })
-  .catch(error => {
-    console.error('Fetch Error:', error);
-    alert(`Save failed: ${error.message}`);
-  });
+  // In showFinalScore() function - REPLACE the existing fetch code with:
+console.log('Submitting:', { ldap, quizType: selectedQuizType, score: `${score}/${quizQuestions.length}` });
+
+fetch(WEB_APP_URL, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    ldap: ldap,
+    quizType: selectedQuizType,
+    score: `${score}/${quizQuestions.length}`
+  }),
+  mode: 'no-cors' // This makes the response opaque
+})
+.then(() => {
+  alert('Results submitted (cannot verify success due to no-cors mode).');
+})
+.catch(error => {
+  console.error('Submission error:', error);
+  alert(`Save failed: ${error.message}`);
+});
 
   // Now proceed with building the summary
   let summaryHTML = `
