@@ -1,6 +1,6 @@
 // quiz.js
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbywOfW8N8h2TCw4gG_8V1lMOxZTrdD6WlPWrM12bwkN9FFeEEZBoQJYfkxImtBR7As9/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9tjrCL9dh8-p_0tIilHHZl4TR9aaBv7_0E4Nk0XHncpjHOf-K4TO_TiKjJgu2Qq8CMQ/exec";
 
 let selectedQuizType = '';
 
@@ -301,30 +301,29 @@ function showFinalScore() {
   // Send the POST request
   fetch(WEB_APP_URL, {
     method: 'POST',
-    mode: 'no-cors', // Important for GitHub Pages
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       ldap: ldap,
       quizType: selectedQuizType,
-      score: `${score}/${quizQuestions.length}` // Remove percentage
+      score: `${score}/${quizQuestions.length}` // Format: "15/40"
     })
   })
   .then(response => {
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   })
   .then(result => {
     if (result.result === 'success') {
       alert('Results saved successfully!');
     } else {
-      throw new Error(result.message || 'Unknown server error');
+      throw new Error(result.message || 'Server error');
     }
   })
   .catch(error => {
-    console.error('Error:', error);
-    alert(`Error saving results: ${error.message}`);
+    console.error('Fetch Error:', error);
+    alert(`Save failed: ${error.message}`);
   });
 
   // Now proceed with building the summary
