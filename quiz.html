@@ -1,0 +1,52 @@
+<!-- quiz.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Mode - Service Tech Advanced Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="quiz-container">
+    <h1 id="quiz-title">Service Tech Advanced Quiz</h1>
+    <div id="ldap-field">
+      <label for="ldap-input">LDAP:</label>
+      <input type="text" id="ldap-input" name="ldap-input" />
+      <button id="ldap-next-button">Next</button>
+      <p id="ldap-error" class="error-message" style="display: none;">Please enter your LDAP to proceed.</p>
+    </div>
+    <div id="question-count-selection" style="display: none;">
+      <h2>Select Number of Questions:</h2>
+      <button data-start="0" data-end="15">
+        Questions 1-15<br><span class="difficulty-label">(Easy)</span>
+      </button>
+      <button data-start="15" data-end="40">
+        Questions 16-40<br><span class="difficulty-label">(Medium)</span>
+      </button>
+      <button data-start="40" data-end="50">
+        Questions 41-50<br><span class="difficulty-label">(Hard)</span>
+      </button>
+    </div>
+    <div id="quiz-content" style="display: none;">
+      <div id="question-number"></div>
+      <div id="question-type" class="question-type"></div>
+      <div id="question-text"></div>
+      <ul id="options-list"></ul>
+      <!-- Optional Progress Bar -->
+      <div id="progress-bar-container" style="width: 100%; background-color: #ddd; border-radius: 5px; margin-bottom: 20px;">
+        <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4caf50; border-radius: 5px;"></div>
+      </div>
+      <div id="action-buttons">
+        <button id="next-button" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <script src="questions.js"></script>
+  <script src="quiz.js"></script>
+</body>
+</html>
