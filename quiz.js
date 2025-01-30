@@ -1,9 +1,8 @@
-// quiz.js
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzSoU4646Jd5KZbidgduzf4WD6rzHMAQBJ51C9MjARdlkBfO2uzpNGW9blSQ-BBp_Hw4Q/exec";
+/************************************
+  quiz.js
+************************************/
 
 let selectedQuizType = '';
-
 let quizQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
@@ -39,6 +38,7 @@ function shuffleOptions(question) {
   }
 }
 
+// Listen for DOM load
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('ldap-field').style.display = 'block';
   document.getElementById('ldap-next-button').addEventListener('click', handleLdapNext);
@@ -76,17 +76,17 @@ function startQuiz(start, end) {
   } else if (start === 40 && end === 50) {
     selectedQuizType = 'Hard';
   }
-  
+
   document.getElementById('question-count-selection').style.display = 'none';
   document.getElementById('quiz-content').style.display = 'block';
 
-  // Select the subset of questions based on start and end
+  // Select the subset of questions
   const selectedQuestions = window.questionBank.slice(start, end);
 
   // Shuffle the selected questions
   shuffleArray(selectedQuestions);
 
-  // Shuffle options for applicable question types
+  // Shuffle options for each question
   selectedQuestions.forEach(question => {
     shuffleOptions(question);
   });
@@ -96,7 +96,7 @@ function startQuiz(start, end) {
   score = 0;
   userAnswers = [];
 
-  // Remove any existing event listeners to prevent multiple triggers
+  // Remove existing event listeners on the "next-button"
   const nextButton = document.getElementById('next-button');
   nextButton.replaceWith(nextButton.cloneNode(true));
   document.getElementById('next-button').addEventListener('click', handleNextButton);
@@ -107,11 +107,9 @@ function startQuiz(start, end) {
 function displayQuestion(index) {
   const question = quizQuestions[index];
   document.getElementById('question-number').textContent = `Question ${index + 1} of ${quizQuestions.length}`;
-
-  // Display Question Type
   document.getElementById('question-type').textContent = `Type: ${formatQuestionType(question.type)}`;
-
   document.getElementById('question-text').textContent = question.question;
+
   const optionsList = document.getElementById('options-list');
   optionsList.innerHTML = '';
 
@@ -171,7 +169,7 @@ function createOptionButton(question, index, text, isCheckbox = false) {
   button.textContent = text;
   button.dataset.optionIndex = index;
 
-  // If previously selected, add the selected class
+  // If previously selected, highlight
   if (question.type === 'check_all_that_apply') {
     if (question.userSelectedAnswerIndices.includes(index)) {
       button.classList.add('selected-answer');
@@ -183,7 +181,6 @@ function createOptionButton(question, index, text, isCheckbox = false) {
   }
 
   button.addEventListener('click', () => handleOptionClick(question, button));
-
   return button;
 }
 
@@ -196,26 +193,27 @@ function handleOptionClick(question, button) {
     allButtons.forEach(btn => {
       btn.classList.remove('selected-answer');
     });
-    // Select the clicked button
+    // Select the clicked one
     button.classList.add('selected-answer');
     question.userSelectedAnswerIndex = selectedIndex;
     question.userSelectedAnswerIndices = [];
 
-    // Enable Next/Submit button
     document.getElementById('next-button').disabled = false;
   } else if (question.type === 'check_all_that_apply') {
     if (button.classList.contains('selected-answer')) {
+      // Unselect
       button.classList.remove('selected-answer');
       const idx = question.userSelectedAnswerIndices.indexOf(selectedIndex);
       if (idx > -1) {
         question.userSelectedAnswerIndices.splice(idx, 1);
       }
     } else {
+      // Select
       button.classList.add('selected-answer');
       question.userSelectedAnswerIndices.push(selectedIndex);
     }
 
-    // Enable Next/Submit button if at least one selection
+    // Enable Next/Submit button if at least one selected
     if (question.userSelectedAnswerIndices.length > 0) {
       document.getElementById('next-button').disabled = false;
     } else {
@@ -230,14 +228,11 @@ function handleNextButton() {
   if (question.type === 'check_all_that_apply') {
     const selected = question.userSelectedAnswerIndices;
     const correct = question.correctAnswerIndices;
-
     const isCorrect = arraysEqual(selected.sort(), correct.sort());
 
     if (isCorrect) {
       score++;
     }
-
-    // Store the user's answer
     userAnswers.push({
       question: question.question,
       type: question.type,
@@ -247,25 +242,15 @@ function handleNextButton() {
       options: question.options,
       isCorrect: isCorrect
     });
-
-    currentQuestionIndex++;
-    if (currentQuestionIndex < quizQuestions.length) {
-      displayQuestion(currentQuestionIndex);
-    } else {
-      showFinalScore();
-    }
   } else {
-    // For 'multiple_choice' and 'true_false'
+    // multiple_choice or true_false
     const selected = question.userSelectedAnswerIndex;
     const correct = question.correctAnswerIndex;
-
     const isCorrect = selected === correct;
 
     if (isCorrect) {
       score++;
     }
-
-    // Store the user's answer
     userAnswers.push({
       question: question.question,
       type: question.type,
@@ -275,13 +260,13 @@ function handleNextButton() {
       options: question.options,
       isCorrect: isCorrect
     });
+  }
 
-    currentQuestionIndex++;
-    if (currentQuestionIndex < quizQuestions.length) {
-      displayQuestion(currentQuestionIndex);
-    } else {
-      showFinalScore();
-    }
+  currentQuestionIndex++;
+  if (currentQuestionIndex < quizQuestions.length) {
+    displayQuestion(currentQuestionIndex);
+  } else {
+    showFinalScore();
   }
 }
 
@@ -290,53 +275,31 @@ function showFinalScore() {
   const ldap = document.getElementById('ldap-input').value.trim();
   const quizContainer = document.getElementById('quiz-container');
 
-  // Prepare the data to send
-  const data = {
-    ldap: ldap,
-    quizType: selectedQuizType,
-    // Remove dateOfTest entirely - we'll use server timestamp
-    score: `${score}/${quizQuestions.length} (${percentage}%)`
-  };
-  
-  // Send the POST request
-  // In showFinalScore() function - REPLACE the existing fetch code with:
-console.log('Submitting:', { ldap, quizType: selectedQuizType, score: `${score}/${quizQuestions.length}` });
+  // Prepare textual and numeric versions
+  const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
+  const numericScore = parseFloat((score / quizQuestions.length).toFixed(2)); // e.g., 0.67
 
-fetch(WEB_APP_URL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    ldap: ldap,
-    quizType: selectedQuizType,
-    score: `${score}/${quizQuestions.length}`
-  }),
-  mode: 'no-cors' // This makes the response opaque
-})
-.then(() => {
-  alert('Results submitted (cannot verify success due to no-cors mode).');
-})
-.catch(error => {
-  console.error('Submission error:', error);
-  alert(`Save failed: ${error.message}`);
-});
+  // Save to Supabase
+  saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore);
 
-  // Now proceed with building the summary
+  // Build the summary UI
   let summaryHTML = `
-  <div id="pdf-content">
-    <div style="margin-bottom: 20px;">
-      <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
-      <h3 style="margin: 0;">LDAP: ${ldap}</h3>
-    </div>
-    <div id="summary"><h2>Detailed Summary:</h2><ul>`;
+    <div id="pdf-content">
+      <div style="margin-bottom: 20px;">
+        <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
+        <h3 style="margin: 0;">LDAP: ${ldap}</h3>
+      </div>
+      <div id="summary"><h2>Detailed Summary:</h2><ul>
+  `;
 
   userAnswers.forEach((answer, index) => {
     let userAnswerText = '';
     let correctAnswerText = '';
 
     if (answer.type === 'check_all_that_apply') {
-      userAnswerText = answer.selected.length > 0 ? answer.selected.map(idx => answer.options[idx]).join(', ') : 'No answer selected';
+      userAnswerText = answer.selected.length > 0
+        ? answer.selected.map(idx => answer.options[idx]).join(', ')
+        : 'No answer selected';
       correctAnswerText = answer.correct.map(idx => answer.options[idx]).join(', ');
     } else {
       userAnswerText = answer.options[answer.selected] || 'No answer selected';
@@ -349,53 +312,91 @@ fetch(WEB_APP_URL, {
           <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
           <p class="question-text">Question ${index + 1}: ${answer.question}</p>
           <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerText}</p>
-          ${!answer.isCorrect ? (answer.type === 'check_all_that_apply' ? `<p class="correct">Correct Answers: ${correctAnswerText}</p>` : `<p class="correct">Correct Answer: ${correctAnswerText}</p>`) : ''}
+          ${
+            !answer.isCorrect
+              ? (answer.type === 'check_all_that_apply'
+                  ? `<p class="correct">Correct Answers: ${correctAnswerText}</p>`
+                  : `<p class="correct">Correct Answer: ${correctAnswerText}</p>`)
+              : ''
+          }
           <p class="explanation">Explanation: ${answer.explanation}</p>
         </div>
       </li>`;
   });
 
-  summaryHTML += `</ul></div></div>
+  summaryHTML += `
+      </ul></div>
+    </div>
     <button id="download-pdf-button">Download PDF</button>
-    <button id="restart-button">Restart Quiz</button>`;
+    <button id="restart-button">Restart Quiz</button>
+  `;
 
   quizContainer.innerHTML = summaryHTML;
 
   document.getElementById('download-pdf-button').addEventListener('click', () => {
     const element = document.getElementById('pdf-content');
     const opt = {
-      margin:       [10, 15, 10, 15], // Reduced margins
-      filename:     `quiz-results-${ldap}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { 
+      margin: [10, 15, 10, 15],
+      filename: `quiz-results-${ldap}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
         scale: 2,
         logging: true,
         useCORS: true,
         letterRendering: true
       },
-      jsPDF:        { 
+      jsPDF: {
         unit: 'mm',
         format: 'a4',
-        orientation: 'portrait' 
+        orientation: 'portrait'
       },
-      pagebreak:    { 
+      pagebreak: {
         mode: ['css', 'avoid-all'],
         avoid: '.question-block'
       }
     };
-    
+
     const clone = element.cloneNode(true);
     document.body.appendChild(clone);
     html2pdf().set(opt).from(clone).save().then(() => {
       document.body.removeChild(clone);
     });
   });
-  
+
   document.getElementById('restart-button').addEventListener('click', () => location.reload());
 }
 
+// Insert data into Supabase
+async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue) {
+  try {
+    const { data, error } = await supabase
+      .from('Service Tech Quiz Results')   // Use exact table name (with spaces)
+      .insert([
+        {
+          ldap: ldap,
+          quiz_type: quizType,
+          score_text: scoreText,
+          score_value: scoreValue
+          // date_of_test will default to NOW() automatically in the DB
+        }
+      ]);
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      alert('Failed to save quiz result to Supabase.');
+    } else {
+      console.log('Supabase insert success:', data);
+      // Optionally notify the user
+      // alert('Quiz result saved to Supabase!');
+    }
+  } catch (err) {
+    console.error('Error saving to Supabase:', err);
+    alert('Error saving to Supabase.');
+  }
+}
+
 function formatQuestionType(type) {
-  switch(type) {
+  switch (type) {
     case 'multiple_choice':
       return 'Multiple Choice';
     case 'true_false':

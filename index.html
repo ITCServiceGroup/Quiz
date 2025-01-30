@@ -1,16 +1,16 @@
 <!-- index.html -->
-<!DOCTYPE html>
+<!D<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com">
-  <!-- Add CSP header -->
-<meta http-equiv="Content-Security-Policy" 
-content="default-src 'self' https://script.google.com https://cdnjs.cloudflare.com;
-        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        font-src 'self' https://fonts.gstatic.com;
-        connect-src 'self' https://script.google.com">
+  <!-- Content Security Policy headers -->
+  <meta http-equiv="Content-Security-Policy" 
+  content="default-src 'self' https://cdnjs.cloudflare.com;
+          script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+          style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+          font-src 'self' https://fonts.gstatic.com;
+          connect-src 'self' https://scmwpoowjhzawvmiyohz.supabase.co">
+  
   <title>Test Mode - Service Tech Advanced Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,8 +53,21 @@ content="default-src 'self' https://script.google.com https://cdnjs.cloudflare.c
     </div>
   </div>
 
+  <!-- Include html2pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <!-- Your question bank -->
   <script src="questions.js"></script>
+
+  <!-- Supabase client library (UMD) -->
+  <script src="https://unpkg.com/@supabase/supabase-js/dist/umd/supabase.js"></script>
+  <script>
+    // Replace these with YOUR actual Supabase project credentials
+    const supabaseUrl = "https://abcxyzcompany.supabase.co"; // Example URL
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxxxxx.xxxxxx"; // Example anon key
+    const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+  </script>
+
+  <!-- Your main quiz logic -->
   <script src="quiz.js"></script>
 </body>
 </html>
