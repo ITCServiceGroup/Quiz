@@ -57,10 +57,12 @@
     // Replace these with YOUR actual Supabase project credentials
     const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co"; // Example URL
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbXdwb293amh6YXd2bWl5b2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTA1NDYsImV4cCI6MjA1MzgyNjU0Nn0.Ul1dRzTe7QQ81lmgTXNZ1QEYtmWDzzUdVP-xPKZXKQI"; // Example anon key
-    const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    // Initialize Supabase client using a different variable name to avoid conflict
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
     
-    // Expose supabase globally for debugging purposes (optional)
-    window.supabase = supabase;
+    // Expose supabaseClient globally for debugging purposes (optional)
+    window.supabase = supabaseClient;
   </script>
 
   <!-- Your main quiz logic -->

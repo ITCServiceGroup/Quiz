@@ -8,6 +8,14 @@ let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
 
+// Reference the Supabase client from the global window object
+const supabase = window.supabase;
+
+if (!supabase) {
+  console.error('Supabase client is not initialized.');
+  alert('Supabase client failed to initialize. Please try again later.');
+}
+
 // Utility function to shuffle an array in place
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -279,8 +287,54 @@ function showFinalScore() {
   const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
   const numericScore = parseFloat((score / quizQuestions.length).toFixed(2)); // e.g., 0.67
 
-  // Save to Supabase
-  saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore);
+  // Save to Supabase with Enhanced Logging
+  saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore)
+    .then(() => {
+      // Build the summary UI only after successful insertion
+      buildSummaryHTML(ldap, textScore, numericScore);
+    })
+    .catch(() => {
+      // Even if saving fails, build the summary
+      buildSummaryHTML(ldap, textScore, numericScore);
+    });
+}
+
+async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue) {
+  console.log("Attempting to save quiz result to Supabase...");
+  console.log("Data:", { ldap, quizType, scoreText, scoreValue });
+
+  try {
+    const { data, error } = await supabase
+      .from('Service Tech Quiz Results')   // Use exact table name (with spaces)
+      .insert([
+        {
+          ldap: ldap,
+          quiz_type: quizType,
+          score_text: scoreText,
+          score_value: scoreValue
+          // date_of_test will default to NOW() automatically in the DB
+        }
+      ]);
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      alert('Failed to save quiz result to Supabase.');
+      throw error; // To ensure the promise is rejected
+    } else {
+      console.log('Supabase insert success:', data);
+      // Optionally notify the user
+      // alert('Quiz result saved to Supabase!');
+    }
+  } catch (err) {
+    console.error('Error saving to Supabase:', err);
+    alert('Error saving to Supabase.');
+    throw err;
+  }
+}
+
+function buildSummaryHTML(ldap, textScore, numericScore) {
+  const percentage = ((numericScore) * 100).toFixed(2);
+  const quizContainer = document.getElementById('quiz-container');
 
   // Build the summary UI
   let summaryHTML = `
@@ -325,14 +379,15 @@ function showFinalScore() {
   });
 
   summaryHTML += `
-      </ul></div>
-    </div>
-    <button id="download-pdf-button">Download PDF</button>
-    <button id="restart-button">Restart Quiz</button>
+    </ul></div>
+  </div>
+  <button id="download-pdf-button">Download PDF</button>
+  <button id="restart-button">Restart Quiz</button>
   `;
 
   quizContainer.innerHTML = summaryHTML;
 
+  // Add event listeners for the new buttons
   document.getElementById('download-pdf-button').addEventListener('click', () => {
     const element = document.getElementById('pdf-content');
     const opt = {
