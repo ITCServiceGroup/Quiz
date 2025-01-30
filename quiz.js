@@ -2,6 +2,20 @@
   quiz.js
 ************************************/
 
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+// Initialize Supabase client
+const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co"; // Your actual Supabase URL
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbXdwb293amh6YXd2bWl5b2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTA1NDYsImV4cCI6MjA1MzgyNjU0Nn0.Ul1dRzTe7QQ81lmgTXNZ1QEYtmWDzzUdVP-xPKZXKQI"; // Your actual anon key
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Assign to window for global access (optional)
+window.supabase = supabase;
+
+// Log to verify initialization
+console.log('Supabase client initialized:', supabase);
+
 let selectedQuizType = '';
 let quizQuestions = [];
 let currentQuestionIndex = 0;
@@ -9,7 +23,7 @@ let score = 0;
 let userAnswers = [];
 
 // Reference the Supabase client from the global window object
-const supabase = window.supabase;
+// (Already assigned above)
 
 if (!supabase) {
   console.error('Supabase client is not initialized.');
@@ -419,35 +433,6 @@ function buildSummaryHTML(ldap, textScore, numericScore) {
   });
 
   document.getElementById('restart-button').addEventListener('click', () => location.reload());
-}
-
-// Insert data into Supabase
-async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue) {
-  try {
-    const { data, error } = await supabase
-      .from('Service Tech Quiz Results')   // Use exact table name (with spaces)
-      .insert([
-        {
-          ldap: ldap,
-          quiz_type: quizType,
-          score_text: scoreText,
-          score_value: scoreValue
-          // date_of_test will default to NOW() automatically in the DB
-        }
-      ]);
-
-    if (error) {
-      console.error('Supabase insert error:', error);
-      alert('Failed to save quiz result to Supabase.');
-    } else {
-      console.log('Supabase insert success:', data);
-      // Optionally notify the user
-      // alert('Quiz result saved to Supabase!');
-    }
-  } catch (err) {
-    console.error('Error saving to Supabase:', err);
-    alert('Error saving to Supabase.');
-  }
 }
 
 function formatQuestionType(type) {
