@@ -6,7 +6,7 @@
   <!-- Content Security Policy headers -->
   <meta http-equiv="Content-Security-Policy" 
   content="default-src 'self' https://cdnjs.cloudflare.com;
-          script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+          script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com;
           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
           font-src 'self' https://fonts.gstatic.com;
           connect-src 'self' https://scmwpoowjhzawvmiyohz.supabase.co">
@@ -65,6 +65,9 @@
     const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co"; // Example URL
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxxxxx.xxxxxx"; // Example anon key
     const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+    
+    // Expose supabase globally for debugging purposes (optional)
+    window.supabase = supabase;
   </script>
 
   <!-- Your main quiz logic -->
