@@ -1,6 +1,7 @@
 /************************************
   quiz.js
 ************************************/
+
 (function() { // Encapsulate to prevent global scope pollution
   let selectedQuizType = '';
   let quizQuestions = [];

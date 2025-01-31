@@ -304,34 +304,24 @@ body {
 }
 
 /* Button Styles in Summary */
-#summary-content button {
+#download-pdf-button,
+#restart-button,
+#return-to-menu {
   padding: 12px 20px;
   font-size: 18px;
   margin: 10px;
+  background-color: #1b4e99;
+  color: #ffffff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-#download-pdf-button {
-  background-color: #007BFF;
-  color: white;
-}
-
-#download-pdf-button:hover {
-  background-color: #0056b3;
-}
-
-#restart-button,
-#return-to-menu {
-  background-color: #6c757d;
-  color: white;
-}
-
+#download-pdf-button:hover,
 #restart-button:hover,
 #return-to-menu:hover {
-  background-color: #5a6268;
+  background-color: #1c447f;
 }
 
 /* Enhanced Style for Question Type */
