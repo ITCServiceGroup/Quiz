@@ -229,20 +229,21 @@ body {
 }
 
 /* Progress Bar Styles */
-#progress-container {
+#progress-bar-container {
   width: 100%;
-  background-color: #e0e0e0;
-  border-radius: 25px;
+  background-color: #ddd; /* Light gray background */
+  border-radius: 5px;
   margin: 20px 0;
   height: 20px;
+  display: none; /* Initially hidden */
 }
 
 #progress-bar {
   width: 0%;
   height: 100%;
-  background-color: #76c7c0;
-  border-radius: 25px;
-  transition: width 0.5s;
+  background-color: #4caf50; /* Green color */
+  border-radius: 5px;
+  transition: width 0.5s ease; /* Smooth transition */
 }
 
 /* Summary Styles */
@@ -332,7 +333,6 @@ body {
   font-weight: bold;
   margin-bottom: 15px;
   color: #28a745; /* Green color */
-  background-color: #e6ffe6; /* Light green background for emphasis */
   padding: 10px;
   border-radius: 5px;
   display: inline-block;
