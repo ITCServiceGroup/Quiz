@@ -335,15 +335,7 @@ body {
   color: #1c447f; 
   padding: 10px;
   border-radius: 5px;
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.question-type.visible {
-  opacity: 1;
-  transform: translateY(0);
+  display: block; /* Changed from inline-block to block for consistency */
 }
 
 /* Styles for correct and incorrect feedback */
