@@ -140,9 +140,9 @@ window.questionBank = [
       "Excessive bending or kinking of the cable.",
       "Using high-quality connectors.",
       "Splicing cables improperly.",
-      "Exposure to extreme temperatures."
+      "Exposure to extreme seasonal temperatures."
     ],
-    correctAnswerIndices: [0, 2, 3],
+    correctAnswerIndices: [0, 2],
     explanation: "Excessive bending, improper splicing, and exposure to extreme temperatures can cause signal degradation in fiber optic cables."
   },
   {
