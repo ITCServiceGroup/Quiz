@@ -85,8 +85,12 @@ function startQuiz(start, end) {
     selectedQuizType = 'Hard';
   }
 
+  // Hide the question count selection and show quiz content
   document.getElementById('question-count-selection').style.display = 'none';
   document.getElementById('quiz-content').style.display = 'block';
+
+  // **Show the Progress Bar**
+  document.getElementById('progress-bar-container').style.display = 'block';
 
   // Select the subset of questions
   const selectedQuestions = window.questionBank.slice(start, end);
@@ -108,6 +112,9 @@ function startQuiz(start, end) {
   const nextButton = document.getElementById('next-button');
   nextButton.replaceWith(nextButton.cloneNode(true));
   document.getElementById('next-button').addEventListener('click', handleNextButton);
+
+  // **Update Progress Bar to 0% at Start**
+  document.getElementById('progress-bar').style.width = `0%`;
 
   displayQuestion(currentQuestionIndex);
 }
