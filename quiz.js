@@ -115,7 +115,15 @@ function startQuiz(start, end) {
 function displayQuestion(index) {
   const question = quizQuestions[index];
   document.getElementById('question-number').textContent = `Question ${index + 1} of ${quizQuestions.length}`;
-  document.getElementById('question-type').textContent = `Type: ${formatQuestionType(question.type)}`;
+  
+  const questionTypeElement = document.getElementById('question-type');
+  questionTypeElement.textContent = `Type: ${formatQuestionType(question.type)}`;
+  
+  // **Add the 'visible' class to trigger the transition**
+  questionTypeElement.classList.remove('visible'); // Reset
+  void questionTypeElement.offsetWidth; // Trigger reflow
+  questionTypeElement.classList.add('visible');
+  
   document.getElementById('question-text').textContent = question.question;
 
   const optionsList = document.getElementById('options-list');
@@ -145,7 +153,7 @@ function displayQuestion(index) {
     renderCheckAllThatApplyOptions(question, optionsList);
   }
 
-  // Update progress bar
+  // **Update progress bar**
   const progressPercentage = ((index + 1) / quizQuestions.length) * 100;
   document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
 }
