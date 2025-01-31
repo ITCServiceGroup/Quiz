@@ -270,22 +270,31 @@ body {
   margin: 5px 0;
 }
 
-#summary .question-type {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
+/* Updated Styles */
 
+/* New Style for Question Text */
 #summary .question-text {
+  font-size: 22px; /* Increased font size */
   font-weight: bold;
-  color: #333;
+  color: #333333;
+  margin-bottom: 8px; /* Space between question and type */
 }
 
+/* New Style for Question Type */
+#summary .question-type {
+  font-size: 16px; /* Decreased font size */
+  font-weight: normal; /* Optional: make it less bold */
+  color: #555555; /* Lighter color for distinction */
+  margin-bottom: 12px; /* Space below question type */
+}
+
+/* Optional: Enhanced Styles for Correct and Incorrect Answers */
 #summary .correct {
-  color: #28a745;
+  color: #28a745; /* Green */
 }
 
 #summary .incorrect {
-  color: #dc3545;
+  color: #dc3545; /* Red */
 }
 
 #summary .explanation {
@@ -294,10 +303,8 @@ body {
   margin-top: 8px;
 }
 
-/* Button Styles */
-#download-pdf-button,
-#restart-button,
-#return-to-menu {
+/* Button Styles in Summary */
+#summary-content button {
   padding: 12px 20px;
   font-size: 18px;
   margin: 10px;
