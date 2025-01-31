@@ -156,9 +156,9 @@ body {
 }
 
 .option-button.selected-answer {
-  background-color: #e2e3e5;
-  border-color: #adb5bd;
-  color: #495057;
+  background-color: #cce5ff;
+  border-color: #b8daff;
+  color: #004085;
 }
 
 .option-button.correct-answer {
@@ -241,7 +241,7 @@ body {
 #progress-bar {
   width: 0%;
   height: 100%;
-  background-color: #4caf50; /* Green color */
+  background-color: #007BFF; /* Green color */
   border-radius: 5px;
   transition: width 0.5s ease; /* Smooth transition */
 }
@@ -332,7 +332,7 @@ body {
   font-size: 24px; /* Increased font size */
   font-weight: bold;
   margin-bottom: 15px;
-  color: #28a745; /* Green color */
+  color: #007BFF; /* Green color */
   padding: 10px;
   border-radius: 5px;
   display: inline-block;
