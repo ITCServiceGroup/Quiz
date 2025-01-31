@@ -58,7 +58,6 @@
     document.getElementById('ldap-error').style.display = 'none';
     document.getElementById('ldap-field').style.display = 'none';
     document.getElementById('question-count-selection').style.display = 'block';
-
     const countButtons = document.querySelectorAll('#question-count-selection button');
     countButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -80,22 +79,19 @@
     document.getElementById('question-count-selection').style.display = 'none';
     document.getElementById('quiz-content').style.display = 'block';
     document.getElementById('progress-bar-container').style.display = 'block';
-
     const selectedQuestions = window.questionBank.slice(start, end);
     shuffleArray(selectedQuestions);
-    selectedQuestions.forEach(question => { shuffleOptions(question); });
-
+    selectedQuestions.forEach(question => {
+      shuffleOptions(question);
+    });
     quizQuestions = selectedQuestions;
     currentQuestionIndex = 0;
     score = 0;
     userAnswers = [];
-
-    // Reset event listeners on the next-button
     const nextButton = document.getElementById('next-button');
     nextButton.replaceWith(nextButton.cloneNode(true));
     document.getElementById('next-button').addEventListener('click', handleNextButton);
     document.getElementById('progress-bar').style.width = `0%`;
-
     displayQuestion(currentQuestionIndex);
   }
 
@@ -104,16 +100,13 @@
     const question = quizQuestions[index];
     document.getElementById('question-number').textContent = `Question ${index + 1} of ${quizQuestions.length}`;
     const questionTypeElement = document.getElementById('question-type');
-    // Direct update without transition classes
     questionTypeElement.textContent = `Type: ${formatQuestionType(question.type)}`;
     console.log(`Set question type text: ${questionTypeElement.textContent}`);
     document.getElementById('question-text').textContent = question.question;
-
     const optionsList = document.getElementById('options-list');
     optionsList.innerHTML = '';
     question.userSelectedAnswerIndices = question.userSelectedAnswerIndices || [];
     question.userSelectedAnswerIndex = question.userSelectedAnswerIndex || null;
-
     const nextButton = document.getElementById('next-button');
     nextButton.disabled = true;
     if (index === quizQuestions.length - 1) {
@@ -121,7 +114,6 @@
     } else {
       nextButton.textContent = 'Next';
     }
-
     if (question.type === 'true_false') {
       renderTrueFalseOptions(question, optionsList);
     } else if (question.type === 'multiple_choice') {
@@ -173,17 +165,20 @@
     return button;
   }
 
+  // --- Modified: Allow changing answer until Next is pressed ---
   function handleOptionClick(question, button) {
     const selectedIndex = parseInt(button.dataset.optionIndex);
     if (question.type === 'multiple_choice' || question.type === 'true_false') {
+      // Remove selected class from all buttons, but do not disable them
       const allButtons = document.querySelectorAll('#options-list .option-button');
       allButtons.forEach(btn => {
         btn.classList.remove('selected-answer');
-        btn.disabled = true;
       });
+      // Select the clicked button
       button.classList.add('selected-answer');
       question.userSelectedAnswerIndex = selectedIndex;
       question.userSelectedAnswerIndices = [];
+      // Enable Next button; user may change selection as often as desired
       document.getElementById('next-button').disabled = false;
     } else if (question.type === 'check_all_that_apply') {
       if (button.classList.contains('selected-answer')) {
@@ -203,15 +198,14 @@
       }
     }
   }
+  // --- End Modification ---
 
   function handleNextButton() {
-    // Guard: if currentQuestionIndex is out of range, show summary.
     const question = quizQuestions[currentQuestionIndex];
-    if (!question) {
+    if (!question) { // guard against undefined question
       showFinalScore();
       return;
     }
-
     if (question.type === 'check_all_that_apply') {
       const selected = question.userSelectedAnswerIndices;
       const correct = question.correctAnswerIndices;
@@ -245,7 +239,6 @@
         isCorrect: isCorrect
       });
     }
-
     currentQuestionIndex++;
     if (currentQuestionIndex < quizQuestions.length) {
       displayQuestion(currentQuestionIndex);
@@ -310,24 +303,24 @@
         <div id="summary"><h2>Detailed Summary:</h2><ul>
     `;
     userAnswers.forEach((answer, index) => {
-      let userAnswerFormatted = '';
-      let correctAnswerFormatted = '';
+      let userAnswerText = '';
+      let correctAnswerText = '';
       if (answer.type === 'check_all_that_apply') {
-        userAnswerFormatted = answer.selected.length > 0
+        userAnswerText = answer.selected.length > 0
           ? answer.selected.map(idx => answer.options[idx]).join(', ')
           : 'No answer selected';
-        correctAnswerFormatted = answer.correct.map(idx => answer.options[idx]).join(', ');
+        correctAnswerText = answer.correct.map(idx => answer.options[idx]).join(', ');
       } else {
-        userAnswerFormatted = answer.options[answer.selected] || 'No answer selected';
-        correctAnswerFormatted = answer.options[answer.correct];
+        userAnswerText = answer.options[answer.selected] || 'No answer selected';
+        correctAnswerText = answer.options[answer.correct];
       }
       summaryHTML += `
         <li class="summary-item">
           <div class="question-block">
             <p class="question-text">Question ${index + 1}: ${answer.question}</p>
             <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
-            <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerFormatted}</p>
-            ${!answer.isCorrect ? `<p class="correct">Correct Answer: ${correctAnswerFormatted}</p>` : ''}
+            <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerText}</p>
+            ${!answer.isCorrect ? `<p class="correct">Correct Answer: ${correctAnswerText}</p>` : ''}
             <p class="explanation">Explanation: ${answer.explanation}</p>
           </div>
         </li>`;
