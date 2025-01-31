@@ -66,7 +66,7 @@ body {
   padding: 12px 20px;
   font-size: 18px;
   margin: 10px 5px;
-  background-color: #17A2B8;
+  background-color: #64c0f3;
   color: #ffffff;
   border: none;
   border-radius: 5px;
@@ -75,7 +75,7 @@ body {
 }
 
 #question-count-selection button:hover {
-  background-color: #117a8b;
+  background-color: #1c447f;
 }
 
 #ldap-field {
@@ -97,7 +97,7 @@ body {
   padding: 8px 16px;
   font-size: 16px;
   margin-left: 10px;
-  background-color: #28A745;
+  background-color: #1b4e99;
   color: #ffffff;
   border: none;
   border-radius: 5px;
@@ -106,7 +106,7 @@ body {
 }
 
 #ldap-next-button:hover {
-  background-color: #218838;
+  background-color: #1c447f;
 }
 
 .error-message {
@@ -156,9 +156,9 @@ body {
 }
 
 .option-button.selected-answer {
-  background-color: #cce5ff;
-  border-color: #b8daff;
-  color: #004085;
+  background-color: #64c0f3;
+  border-color: #05a1f4;
+  color: #ffffff;
 }
 
 .option-button.correct-answer {
@@ -177,7 +177,7 @@ body {
   margin-top: 20px;
   padding: 12px 20px;
   font-size: 18px;
-  background-color: #28A745;
+  background-color: #1b4e99;
   color: #ffffff;
   border: none;
   border-radius: 5px;
@@ -186,13 +186,13 @@ body {
 }
 
 #next-button:disabled {
-  background-color: #cccccc;
-  color: #666666;
+  background-color: #64c0f3;
+  color: #ffffff;
   cursor: not-allowed;
 }
 
 #next-button:hover:enabled {
-  background-color: #218838;
+  background-color: #1c447f;
 }
 
 #check-button {
@@ -241,7 +241,7 @@ body {
 #progress-bar {
   width: 0%;
   height: 100%;
-  background-color: #007BFF; /* Green color */
+  background-color: #1c447f; /* Blue color */
   border-radius: 5px;
   transition: width 0.5s ease; /* Smooth transition */
 }
@@ -332,7 +332,7 @@ body {
   font-size: 24px; /* Increased font size */
   font-weight: bold;
   margin-bottom: 15px;
-  color: #007BFF; /* Green color */
+  color: #1c447f; 
   padding: 10px;
   border-radius: 5px;
   display: inline-block;
