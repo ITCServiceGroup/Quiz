@@ -57,8 +57,17 @@
       return;
     }
     document.getElementById('ldap-error').style.display = 'none';
+  
+    // Capture the new field values.
+    const supervisor = document.getElementById('supervisor-select').value;
+    const market = document.getElementById('market-select').value;
+  
+    // Save all data for later use.
+    userData = { ldap: ldapInput, supervisor: supervisor, market: market };
+  
     document.getElementById('ldap-field').style.display = 'none';
     document.getElementById('question-count-selection').style.display = 'block';
+  
     const countButtons = document.querySelectorAll('#question-count-selection button');
     countButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -250,12 +259,14 @@
 
   function showFinalScore() {
     const percentage = ((score / quizQuestions.length) * 100).toFixed(2);
-    const ldap = document.getElementById('ldap-input').value.trim();
+    const ldap = userData.ldap;
+    const supervisor = userData.supervisor;
+    const market = userData.market;
     const quizContainer = document.getElementById('quiz-container');
     const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
     const numericScore = parseFloat((score / quizQuestions.length).toFixed(2));
-
-    saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore)
+  
+    saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore, supervisor, market)
       .then(() => {
         buildSummaryHTML(ldap, textScore, numericScore);
       })
@@ -264,18 +275,20 @@
       });
   }
 
-  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue) {
+  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue, supervisor, market) {
     console.log("Attempting to save quiz result to Supabase...");
-    console.log("Data:", { ldap, quizType, scoreText, scoreValue });
+    console.log("Data:", { ldap, quizType, scoreText, scoreValue, supervisor, market });
     try {
       const { data, error } = await supabase
-        .from('Service Tech Quiz Results')
+        .from('Quiz Results')
         .insert([
           {
             ldap: ldap,
             quiz_type: quizType,
             score_text: scoreText,
-            score_value: scoreValue
+            score_value: scoreValue,
+            supervisor: supervisor,  // New field
+            market: market           // New field
           }
         ]);
       if (error) {

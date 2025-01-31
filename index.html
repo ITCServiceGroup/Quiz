@@ -3,7 +3,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  
   <title>Test Mode - Service Tech Advanced Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,10 +21,38 @@
     </div>
     
     <div id="ldap-field">
-      <label for="ldap-input">LDAP:</label>
-      <input type="text" id="ldap-input" name="ldap-input" />
+      <div class="fields-inline">
+        <div class="field-group">
+          <label for="ldap-input">LDAP:</label>
+          <input 
+            type="text" 
+            id="ldap-input" 
+            name="ldap-input" 
+            autocomplete="off" 
+            autocorrect="off" 
+            autocapitalize="none" 
+            spellcheck="false" 
+          />
+        </div>
+        <div class="field-group">
+          <label for="supervisor-select">Supervisor:</label>
+          <select id="supervisor-select">
+            <option value="Jose Guajardo (JC)">Jose Guajardo (JC)</option>
+            <option value="Julian Lanas">Julian Lanas</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="market-select">Market:</label>
+          <select id="market-select">
+            <option value="Austin">Austin</option>
+          </select>
+        </div>
+      </div>
+      
       <button id="ldap-next-button">Next</button>
-      <p id="ldap-error" class="error-message" style="display: none;">Please enter your LDAP to proceed.</p>
+      <p id="ldap-error" class="error-message" style="display: none;">
+        Please enter your LDAP to proceed.
+      </p>
     </div>
 
     <div id="question-count-selection" style="display: none;">
@@ -57,8 +84,8 @@
   <script src="questions.js"></script>
 
   <!-- Supabase client library (UMD) from unpkg CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.5/dist/umd/supabase.min.js"></script> 
- <script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.5/dist/umd/supabase.min.js"></script> 
+  <script>
     // Initialize Supabase client
     const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co"; // Your actual Supabase URL
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbXdwb293amh6YXd2bWl5b2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTA1NDYsImV4cCI6MjA1MzgyNjU0Nn0.Ul1dRzTe7QQ81lmgTXNZ1QEYtmWDzzUdVP-xPKZXKQI"; // Your actual anon key

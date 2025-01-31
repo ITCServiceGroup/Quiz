@@ -1,7 +1,5 @@
-/* styles.css */
-
+/* Global Styles */
 body {
-  /* Updated font-family to use system fonts */
   font-family: Arial, sans-serif;
   background-color: #f0f2f5;
   margin: 0;
@@ -10,7 +8,7 @@ body {
 
 #quiz-container {
   width: 90%;
-  max-width: 800px;
+  max-width: 950px;
   margin: 50px auto;
   padding: 30px 40px;
   background-color: #ffffff;
@@ -23,7 +21,7 @@ body {
   font-size: 32px;
   font-weight: bold;
   color: #333333;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 #quiz-description {
@@ -32,6 +30,7 @@ body {
   margin-bottom: 30px;
 }
 
+/* Mode Selection */
 #mode-selection {
   margin-bottom: 20px;
 }
@@ -52,6 +51,7 @@ body {
   background-color: #0056b3;
 }
 
+/* Question Count Selection */
 #question-count-selection {
   margin-top: 20px;
 }
@@ -78,21 +78,74 @@ body {
   background-color: #1c447f;
 }
 
+/* LDAP Field Section */
 #ldap-field {
   margin-bottom: 20px;
 }
 
-#ldap-field label {
+/* Arrange LDAP, Supervisor, and Market fields inline */
+.fields-inline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center; /* Center the groups within the container */
+  gap: 10px;  /* Uniform 10px gap between each field group */
+  margin-bottom: 15px;
+}
+
+/* Each field group (LDAP, Supervisor, Market) */
+.field-group {
+  width: 200px;  /* Fixed width for uniformity */
+  text-align: center;
+}
+
+.field-group label {
+  display: block;
   font-size: 18px;
-  margin-right: 10px;
+  margin-bottom: 5px;
 }
 
+/* Independent spacing: */
+   .fields-inline .field-group:nth-child(1) {
+    margin-right: 25px;
+  }
+  
+  .fields-inline .field-group:nth-child(2) {
+    margin-right: 0px;
+  }
+
+/* LDAP Input Styling */
 #ldap-input {
-  padding: 8px;
-  font-size: 16px;
-  width: 200px;
+  padding: 10px;
+  font-size: 14px;
+  width: 100%; /* Fill its container (.field-group) */
+  border: 2px solid #007BFF;
+  border-radius: 5px;
+  background-color: #ffffff;
+  color: #007BFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
+/* Select Styling for Supervisor and Market */
+#ldap-field select {
+  padding: 10px 20px 10px 10px;  /* Extra right padding for the arrow */
+  font-size: 14px;
+  width: 100%; /* Fill its container (.field-group) */
+  border: 2px solid #007BFF;
+  border-radius: 5px;
+  background-color: #ffffff;
+  color: #007BFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23007BFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* LDAP Next Button */
 #ldap-next-button {
   padding: 8px 16px;
   font-size: 16px;
@@ -109,12 +162,14 @@ body {
   background-color: #1c447f;
 }
 
+/* Error Message */
 .error-message {
   color: #dc3545;
   font-size: 16px;
   margin-top: 5px;
 }
 
+/* Question and Options Styles */
 #question-number {
   font-size: 18px;
   color: #888;
@@ -147,7 +202,7 @@ body {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  margin-bottom: 10px; /* Added spacing */
+  margin-bottom: 10px;
 }
 
 .option-button:hover:not(:disabled) {
@@ -173,6 +228,7 @@ body {
   color: #721c24 !important;
 }
 
+/* Next Button */
 #next-button {
   margin-top: 20px;
   padding: 12px 20px;
@@ -195,6 +251,7 @@ body {
   background-color: #1c447f;
 }
 
+/* Check Button */
 #check-button {
   margin-top: 10px;
   padding: 10px 18px;
@@ -217,33 +274,34 @@ body {
   cursor: not-allowed;
 }
 
+/* Feedback */
 #feedback {
   margin-top: 30px;
   font-size: 20px;
   font-weight: bold;
-  white-space: pre-wrap; /* Allows line breaks */
+  white-space: pre-wrap;
 }
 
 #feedback p {
   margin: 0;
 }
 
-/* Progress Bar Styles */
+/* Progress Bar */
 #progress-bar-container {
   width: 100%;
-  background-color: #ddd; /* Light gray background */
+  background-color: #ddd;
   border-radius: 5px;
   margin: 20px 0;
   height: 20px;
-  display: none; /* Initially hidden */
+  display: none;
 }
 
 #progress-bar {
   width: 0%;
   height: 100%;
-  background-color: #1c447f; /* Blue color */
+  background-color: #1c447f;
   border-radius: 5px;
-  transition: width 0.5s ease; /* Smooth transition */
+  transition: width 0.5s ease;
 }
 
 /* Summary Styles */
@@ -270,31 +328,27 @@ body {
   margin: 5px 0;
 }
 
-/* Updated Styles */
-
-/* New Style for Question Text */
+/* Summary Text */
 #summary .question-text {
-  font-size: 22px; /* Increased font size */
+  font-size: 22px;
   font-weight: bold;
   color: #333333;
-  margin-bottom: 8px; /* Space between question and type */
+  margin-bottom: 8px;
 }
 
-/* New Style for Question Type */
 #summary .question-type {
-  font-size: 16px; /* Decreased font size */
-  font-weight: normal; /* Optional: make it less bold */
-  color: #555555; /* Lighter color for distinction */
-  margin-bottom: 12px; /* Space below question type */
+  font-size: 16px;
+  font-weight: normal;
+  color: #555555;
+  margin-bottom: 12px;
 }
 
-/* Optional: Enhanced Styles for Correct and Incorrect Answers */
 #summary .correct {
-  color: #28a745; /* Green */
+  color: #28a745;
 }
 
 #summary .incorrect {
-  color: #dc3545; /* Red */
+  color: #dc3545;
 }
 
 #summary .explanation {
@@ -303,7 +357,7 @@ body {
   margin-top: 8px;
 }
 
-/* Button Styles in Summary */
+/* Summary Buttons */
 #download-pdf-button,
 #restart-button,
 #return-to-menu {
@@ -324,18 +378,18 @@ body {
   background-color: #1c447f;
 }
 
-/* Enhanced Style for Question Type */
+/* Enhanced Question Type */
 .question-type {
-  font-size: 24px; /* Increased font size */
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 15px;
-  color: #1c447f; 
+  color: #1c447f;
   padding: 10px;
   border-radius: 5px;
-  display: block; /* Changed from inline-block to block for consistency */
+  display: block;
 }
 
-/* Styles for correct and incorrect feedback */
+/* Feedback Styles */
 .feedback-correct {
   color: green;
   font-weight: bold;
@@ -348,10 +402,10 @@ body {
   margin-top: 10px;
 }
 
-/* Branding Image Styles */
+/* Branding Image */
 #branding-logo {
-  width: 200px; /* Adjust width as needed */
+  width: 200px;
   max-width: 100%;
   height: auto;
-  margin-bottom: 10px; /* Space between logo and quiz title */
+  margin-bottom: 10px;
 }
