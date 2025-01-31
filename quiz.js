@@ -8,13 +8,16 @@
   let currentQuestionIndex = 0;
   let score = 0;
   let userAnswers = [];
+  let timerInterval = null;
+  let startTime = 0;
+  const totalTime = 28 * 60; // 28 minutes in seconds
 
   // Reference the Supabase client from the global window object
   const supabase = window.supabase;
   if (!supabase) {
     console.error('Supabase client is not initialized.');
     alert('Supabase client failed to initialize. Please try again later.');
-    return; // Exit if Supabase is not initialized
+    return;
   }
 
   // Utility function to shuffle an array in place
@@ -23,6 +26,13 @@
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
+  }
+
+  // Utility function to choose n random items from an array (without repetition)
+  function chooseRandomQuestions(arr, n) {
+    const copy = arr.slice();
+    shuffleArray(copy);
+    return copy.slice(0, n);
   }
 
   // Function to shuffle options for a question and update correctAnswerIndex/Indices
@@ -57,52 +67,126 @@
       return;
     }
     document.getElementById('ldap-error').style.display = 'none';
-  
-    // Capture the new field values.
+    
+    // Capture the additional fields
     const supervisor = document.getElementById('supervisor-select').value;
     const market = document.getElementById('market-select').value;
-  
-    // Save all data for later use.
+    
+    // Save user data for later use
     userData = { ldap: ldapInput, supervisor: supervisor, market: market };
-  
+    
+    // Hide the input page and start the quiz immediately
     document.getElementById('ldap-field').style.display = 'none';
-    document.getElementById('question-count-selection').style.display = 'block';
-  
-    const countButtons = document.querySelectorAll('#question-count-selection button');
-    countButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const start = parseInt(btn.dataset.start);
-        const end = parseInt(btn.dataset.end);
-        startQuiz(start, end);
-      });
-    });
+    
+    // (If there is a question count selection section, hide it)
+    const qcElem = document.getElementById('question-count-selection');
+    if (qcElem) {
+      qcElem.style.display = 'none';
+    }
+    
+    // Start the quiz
+    startQuiz();
   }
 
-  function startQuiz(start, end) {
-    if (start === 0 && end === 15) {
-      selectedQuizType = 'Easy';
-    } else if (start === 15 && end === 40) {
-      selectedQuizType = 'Medium';
-    } else if (start === 40 && end === 50) {
-      selectedQuizType = 'Hard';
-    }
-    document.getElementById('question-count-selection').style.display = 'none';
-    document.getElementById('quiz-content').style.display = 'block';
-    document.getElementById('progress-bar-container').style.display = 'block';
-    const selectedQuestions = window.questionBank.slice(start, end);
-    shuffleArray(selectedQuestions);
-    selectedQuestions.forEach(question => {
-      shuffleOptions(question);
-    });
-    quizQuestions = selectedQuestions;
+  function startQuiz() {
+    // Set quiz type to the constant value.
+    selectedQuizType = "Advanced Service Tech Quiz";
+
+    // Build the quiz by pulling 5 easy, 15 medium, and 5 hard questions.
+    const easyQuestions = window.questionBank.slice(0, 15);
+    const mediumQuestions = window.questionBank.slice(15, 40);
+    const hardQuestions = window.questionBank.slice(40, 50);
+    
+    const chosenEasy = chooseRandomQuestions(easyQuestions, 5);
+    const chosenMedium = chooseRandomQuestions(mediumQuestions, 15);
+    const chosenHard = chooseRandomQuestions(hardQuestions, 5);
+    
+    // Combine and shuffle the selected questions.
+    quizQuestions = chosenEasy.concat(chosenMedium, chosenHard);
+    shuffleArray(quizQuestions);
+    
     currentQuestionIndex = 0;
     score = 0;
     userAnswers = [];
+    
+    // Hide any difficulty selection (if present) and show quiz content.
+    document.getElementById('quiz-content').style.display = 'block';
+    document.getElementById('progress-bar-container').style.display = 'block';
+    
+    // Initialize the Next button event listener.
     const nextButton = document.getElementById('next-button');
     nextButton.replaceWith(nextButton.cloneNode(true));
     document.getElementById('next-button').addEventListener('click', handleNextButton);
-    document.getElementById('progress-bar').style.width = `0%`;
+    
+    // Initialize and start the timer.
+    startTime = Date.now();
+    startTimer(totalTime);
+    
+    // (Optional) Create a timer display element if not present.
+    let timerElem = document.getElementById('timer');
+    if (!timerElem) {
+      timerElem = document.createElement('div');
+      timerElem.id = 'timer';
+      // Place the timer at the top of the quiz-content.
+      const quizContent = document.getElementById('quiz-content');
+      quizContent.insertAdjacentElement('afterbegin', timerElem);
+    }
+    
+    updateTimerDisplay(totalTime);
+    
     displayQuestion(currentQuestionIndex);
+  }
+
+  function startTimer(duration) {
+    let timeRemaining = duration;
+    timerInterval = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay(timeRemaining);
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        endQuizDueToTimeout();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay(seconds) {
+    const timerElem = document.getElementById('timer');
+    if (timerElem) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      timerElem.textContent = `Time Remaining: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+  }
+
+  // Called when time runs out.
+  function endQuizDueToTimeout() {
+    // For any unanswered questions, mark them as incorrect.
+    for (let i = currentQuestionIndex; i < quizQuestions.length; i++) {
+      const question = quizQuestions[i];
+      if (question.type === 'check_all_that_apply') {
+        userAnswers.push({
+          question: question.question,
+          type: question.type,
+          selected: [],
+          correct: question.correctAnswerIndices,
+          explanation: question.explanation,
+          options: question.options,
+          isCorrect: false
+        });
+      } else {
+        userAnswers.push({
+          question: question.question,
+          type: question.type,
+          selected: null,
+          correct: question.correctAnswerIndex,
+          explanation: question.explanation,
+          options: question.options,
+          isCorrect: false
+        });
+      }
+    }
+    // End the quiz and show the summary.
+    showFinalScore();
   }
 
   function displayQuestion(index) {
@@ -119,11 +203,8 @@
     question.userSelectedAnswerIndex = question.userSelectedAnswerIndex || null;
     const nextButton = document.getElementById('next-button');
     nextButton.disabled = true;
-    if (index === quizQuestions.length - 1) {
-      nextButton.textContent = 'Submit';
-    } else {
-      nextButton.textContent = 'Next';
-    }
+    nextButton.textContent = (index === quizQuestions.length - 1) ? 'Submit' : 'Next';
+    
     if (question.type === 'true_false') {
       renderTrueFalseOptions(question, optionsList);
     } else if (question.type === 'multiple_choice') {
@@ -131,6 +212,7 @@
     } else if (question.type === 'check_all_that_apply') {
       renderCheckAllThatApplyOptions(question, optionsList);
     }
+    
     const progressPercentage = ((index + 1) / quizQuestions.length) * 100;
     document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
   }
@@ -179,7 +261,7 @@
   function handleOptionClick(question, button) {
     const selectedIndex = parseInt(button.dataset.optionIndex);
     if (question.type === 'multiple_choice' || question.type === 'true_false') {
-      // Remove selected class from all buttons, but do not disable them
+      // Remove selected class from all buttons (do not disable them)
       const allButtons = document.querySelectorAll('#options-list .option-button');
       allButtons.forEach(btn => {
         btn.classList.remove('selected-answer');
@@ -188,7 +270,7 @@
       button.classList.add('selected-answer');
       question.userSelectedAnswerIndex = selectedIndex;
       question.userSelectedAnswerIndices = [];
-      // Enable Next button; user may change selection as often as desired
+      // Enable Next button; user may change selection as desired
       document.getElementById('next-button').disabled = false;
     } else if (question.type === 'check_all_that_apply') {
       if (button.classList.contains('selected-answer')) {
@@ -201,18 +283,14 @@
         button.classList.add('selected-answer');
         question.userSelectedAnswerIndices.push(selectedIndex);
       }
-      if (question.userSelectedAnswerIndices.length > 0) {
-        document.getElementById('next-button').disabled = false;
-      } else {
-        document.getElementById('next-button').disabled = true;
-      }
+      document.getElementById('next-button').disabled = (question.userSelectedAnswerIndices.length === 0);
     }
   }
   // --- End Modification ---
 
   function handleNextButton() {
     const question = quizQuestions[currentQuestionIndex];
-    if (!question) { // guard against undefined question
+    if (!question) {
       showFinalScore();
       return;
     }
@@ -253,11 +331,20 @@
     if (currentQuestionIndex < quizQuestions.length) {
       displayQuestion(currentQuestionIndex);
     } else {
+      endTimer();
       showFinalScore();
     }
   }
 
+  function endTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+  }
+
   function showFinalScore() {
+    // Compute time taken in seconds
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
     const percentage = ((score / quizQuestions.length) * 100).toFixed(2);
     const ldap = userData.ldap;
     const supervisor = userData.supervisor;
@@ -266,18 +353,18 @@
     const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
     const numericScore = parseFloat((score / quizQuestions.length).toFixed(2));
   
-    saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore, supervisor, market)
+    saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore, supervisor, market, timeTaken)
       .then(() => {
-        buildSummaryHTML(ldap, textScore, numericScore);
+        buildSummaryHTML(ldap, textScore, numericScore, timeTaken);
       })
       .catch(() => {
-        buildSummaryHTML(ldap, textScore, numericScore);
+        buildSummaryHTML(ldap, textScore, numericScore, timeTaken);
       });
   }
 
-  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue, supervisor, market) {
+  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue, supervisor, market, timeTaken) {
     console.log("Attempting to save quiz result to Supabase...");
-    console.log("Data:", { ldap, quizType, scoreText, scoreValue, supervisor, market });
+    console.log("Data:", { ldap, quizType, scoreText, scoreValue, supervisor, market, timeTaken });
     try {
       const { data, error } = await supabase
         .from('Quiz Results')
@@ -287,8 +374,9 @@
             quiz_type: quizType,
             score_text: scoreText,
             score_value: scoreValue,
-            supervisor: supervisor,  // New field
-            market: market           // New field
+            supervisor: supervisor,
+            market: market,
+            time_taken: timeTaken
           }
         ]);
       if (error) {
@@ -305,7 +393,7 @@
     }
   }
 
-  function buildSummaryHTML(ldap, textScore, numericScore) {
+  function buildSummaryHTML(ldap, textScore, numericScore, timeTaken) {
     const percentage = ((numericScore) * 100).toFixed(2);
     const quizContainer = document.getElementById('quiz-container');
     let summaryHTML = `
@@ -313,6 +401,7 @@
         <div style="margin-bottom: 20px;">
           <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
           <h3 style="margin: 0;">LDAP: ${ldap}</h3>
+          <p style="margin: 0;">Time Taken: ${timeTaken} seconds</p>
         </div>
         <div id="summary"><h2>Detailed Summary:</h2><ul>
     `;
@@ -340,10 +429,10 @@
         </li>`;
     });
     summaryHTML += `
-      </ul></div>
-    </div>
-    <button id="download-pdf-button">Download PDF</button>
-    <button id="restart-button">Restart Quiz</button>
+        </ul></div>
+      </div>
+      <button id="download-pdf-button">Download PDF</button>
+      <button id="restart-button">Restart Quiz</button>
     `;
     quizContainer.innerHTML = summaryHTML;
     document.getElementById('download-pdf-button').addEventListener('click', () => {

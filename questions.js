@@ -170,7 +170,7 @@ window.questionBank = [
     explanation: "A large fish tank can block or weaken WiFi signals. Moving the router away from it and closer to a window improves outdoor signal strength."
   },
   
-  // Intermediate Difficulty (16–35)
+  // Medium Difficulty (16–35)
   {
     question: "How do you run a traceroute on Mac?",
     type: "check_all_that_apply",
@@ -472,7 +472,7 @@ window.questionBank = [
     explanation: "Tight bends can cause micro-fractures or signal loss in fiber cables. Ensuring the bend radius complies with specifications resolves this."
   },
   
-  // Advanced Difficulty (41–50)
+  // Hard Difficulty (41–50)
   {
     question: "An Ethernet cable has four pairs of copper wires. Which pair(s) can be used to deliver Power over Ethernet (PoE)?",
     type: "check_all_that_apply",
