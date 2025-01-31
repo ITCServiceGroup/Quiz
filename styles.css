@@ -358,3 +358,11 @@ body {
   font-weight: bold;
   margin-top: 10px;
 }
+
+/* Branding Image Styles */
+#branding-logo {
+  width: 200px; /* Adjust width as needed */
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px; /* Space between logo and quiz title */
+}
