@@ -61,8 +61,8 @@
   });
 
   function handleLdapNext() {
-    const ldapInput = document.getElementById('ldap-input').value.trim();
-    if (!ldapInput) {
+    const ldapInput = document.getElementById('ldap-input').value.trim().toLowerCase();
+      if (!ldapInput) {
       document.getElementById('ldap-error').style.display = 'block';
       return;
     }
