@@ -80,14 +80,16 @@ window.questionBank = [
     explanation: "A MAC (Media Access Control) address is a unique hardware identifier for network devices, used for identifying devices on a local network and managing network access."
   },
   {
-    question: "Fiber optic cables can be used for both data and voice transmissions.",
-    type: "true_false",
+    question: "How does fiber transmit voice, data, and video?",
+    type: "multiple_choice",
     options: [
-      "True",
-      "False"
+      "By converting the signals into electrical pulses that travel through copper conductors.",
+      "By converting the signals into light pulses that travel through optical fibers.",
+      "By modulating radio frequency waves that are sent along the fiber.",
+      "By converting the signals into analog signals that are amplified and transmitted."
     ],
-    correctAnswerIndex: 0,
-    explanation: "Fiber optic cables can transmit both data and voice signals using light pulses, making them versatile for various communication needs."
+    correctAnswerIndex: 1,
+    explanation: "Fiber optic technology works by converting voice, data, and video signals into light pulses that travel through glass or plastic optical fibers, enabling high-speed and long-distance transmission with minimal signal loss."
   },
   {
     question: "Which of the following are benefits of using fiber optic cables over traditional copper cables?",
