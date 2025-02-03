@@ -126,14 +126,14 @@ window.questionBank = [
     explanation: "Fiber optic connectors can become contaminated through fingerprints and oils from handling, dust and airborne particles settling on the connector ends, and improper cleaning techniques that leave residues or scratches. Excessive bending of the fiber can cause physical damage but is not a direct cause of connector contamination."
   },
   {
-    question: "Duplex fiber optic cables contain two fibers, one for transmitting and one for receiving data.",
+    question: "Single-mode fiber optic cables are optimized for long-distance, high-bandwidth communication.",
     type: "true_false",
     options: [
       "True",
       "False"
     ],
     correctAnswerIndex: 0,
-    explanation: "Duplex fiber optic cables consist of two separate fibers: one for transmitting data and one for receiving data. This allows for simultaneous bidirectional communication, enhancing the efficiency and performance of the network."
+    explanation: "Single-mode fiber optic cables have a small core diameter that permits only one mode of light to propagate. This design minimizes dispersion and attenuation, making them ideal for long-distance, high-bandwidth applications."
   },
   {
     question: "Which of the following are common causes of fiber optic cable signal degradation?",
