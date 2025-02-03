@@ -20,7 +20,7 @@ body {
 #quiz-title {
   font-size: 32px;
   font-weight: bold;
-  color: #333333;
+  color: #1c447f;
   margin-bottom: 40px;
 }
 
@@ -408,4 +408,65 @@ body {
   max-width: 100%;
   height: auto;
   margin-bottom: 10px;
+}
+
+#timer {
+  font-size: 22px;     /* Increase the font size (adjust value as needed) */
+  margin-bottom: 15px; /* Add space below the timer */
+  font-weight: bold;   /* Optional: make the timer text bold for better visibility */
+}
+
+/* Popup Overlay */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5); /* semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* ensure popup is on top */
+}
+
+/* Popup Content Box */
+.popup-content {
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+}
+
+/* Popup Title */
+.popup-content h2 {
+  font-size: 28px;
+  color: #dc3545; /* choose a color for the warning title */
+  margin-bottom: 20px;
+}
+
+/* Popup Paragraphs */
+.popup-content p {
+  font-size: 20px;
+  color: #333333;
+  margin-bottom: 20px;
+}
+
+/* Confirm Button */
+#confirm-begin-quiz {
+  padding: 12px 20px;
+  font-size: 18px;
+  background-color: #1b4e99;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#confirm-begin-quiz:hover {
+  background-color: #1c447f;
 }

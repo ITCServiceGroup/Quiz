@@ -10,7 +10,7 @@
   let userAnswers = [];
   let timerInterval = null;
   let startTime = 0;
-  const totalTime = 28 * 60; // 28 minutes in seconds
+  const totalTime = 25 * 60; // 25 minutes in seconds
 
   // Reference the Supabase client from the global window object
   const supabase = window.supabase;
@@ -62,30 +62,39 @@
 
   function handleLdapNext() {
     const ldapInput = document.getElementById('ldap-input').value.trim().toLowerCase();
-      if (!ldapInput) {
+    if (!ldapInput) {
       document.getElementById('ldap-error').style.display = 'block';
       return;
     }
     document.getElementById('ldap-error').style.display = 'none';
-    
+  
     // Capture the additional fields
     const supervisor = document.getElementById('supervisor-select').value;
     const market = document.getElementById('market-select').value;
-    
+  
     // Save user data for later use
     userData = { ldap: ldapInput, supervisor: supervisor, market: market };
-    
-    // Hide the input page and start the quiz immediately
+  
+    // Hide the LDAP input section
     document.getElementById('ldap-field').style.display = 'none';
-    
+  
     // (If there is a question count selection section, hide it)
     const qcElem = document.getElementById('question-count-selection');
     if (qcElem) {
       qcElem.style.display = 'none';
     }
-    
-    // Start the quiz
-    startQuiz();
+  
+    // Show the confirmation popup instead of starting the quiz immediately
+    document.getElementById('popup').style.display = 'flex';
+  
+    // Add an event listener to the Confirm button (ensure you remove any duplicate listeners)
+    const confirmButton = document.getElementById('confirm-begin-quiz');
+    confirmButton.replaceWith(confirmButton.cloneNode(true));
+    document.getElementById('confirm-begin-quiz').addEventListener('click', () => {
+      // Hide the popup and start the quiz
+      document.getElementById('popup').style.display = 'none';
+      startQuiz();
+    });
   }
 
   function startQuiz() {
