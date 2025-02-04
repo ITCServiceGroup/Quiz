@@ -145,7 +145,7 @@ window.questionBank = [
       "Exposure to extreme seasonal temperatures."
     ],
     correctAnswerIndices: [0, 2],
-    explanation: "Excessive bending, improper splicing, and exposure to extreme temperatures can cause signal degradation in fiber optic cables."
+    explanation: "Excessive bending and improper splicing can cause signal degradation in fiber optic cables."
   },
   {
     question: "What is the purpose of using a Visual Fault Locator (VFL)?",
