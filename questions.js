@@ -572,18 +572,6 @@ window.questionBank = [
     explanation: "Mesh systems often use a dedicated backhaul (e.g., a separate radio band) to maintain speed between extenders, offer centralized management, and dynamically route traffic for optimal performance. Traditional extenders typically share bandwidth with connected devices, reducing overall speed."
   },
   {
-    question: "Which of the following are benefits of Mesh WiFi systems compared to 3rd-party extenders?",
-    type: "check_all_that_apply",
-    options: [
-      "Dedicated backhaul for communication between extenders.",
-      "Reduced bandwidth due to signal rebroadcasting.",
-      "Centralized management via a mobile app.",
-      "Consistent performance with adaptive routing."
-    ],
-    correctAnswerIndices: [0, 2, 3],
-    explanation: "Mesh systems often use a dedicated backhaul (e.g., a separate radio band) to maintain speed between extenders, offer centralized management, and dynamically route traffic for optimal performance. Traditional extenders typically share bandwidth with connected devices, reducing overall speed."
-  },
-  {
     question: "A customer reports intermittent internet drops during rainstorms. The ONT’s optical light remains green. Which factors could explain this?",
     type: "check_all_that_apply",
     options: [
