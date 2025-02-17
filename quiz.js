@@ -54,7 +54,16 @@
   // Listen for DOM load
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ldap-field').style.display = 'block';
+    
+    // Set up Next button handler
     document.getElementById('ldap-next-button').addEventListener('click', handleLdapNext);
+    
+    // Set up Back to Menu button handler
+    document.getElementById('back-to-menu-button').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+    
+    // Set up Enter key handler for LDAP input
     document.getElementById('ldap-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleLdapNext();
     });
@@ -351,29 +360,81 @@
     }
   }
 
-  function showFinalScore() {
-    // Compute time taken in seconds
-    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
-    const percentage = ((score / quizQuestions.length) * 100).toFixed(2);
-    const ldap = userData.ldap;
-    const supervisor = userData.supervisor;
-    const market = userData.market;
-    const quizContainer = document.getElementById('quiz-container');
-    const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
-    const numericScore = parseFloat((score / quizQuestions.length).toFixed(2));
-  
-    saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore, supervisor, market, timeTaken)
-      .then(() => {
-        buildSummaryHTML(ldap, textScore, numericScore, timeTaken);
-      })
-      .catch(() => {
-        buildSummaryHTML(ldap, textScore, numericScore, timeTaken);
-      });
+  function sanitizeLDAP(ldap) {
+    // Remove any characters that might cause issues in file paths
+    return ldap.replace(/[^a-z0-9]/g, '').toLowerCase();
   }
 
-  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue, supervisor, market, timeTaken) {
+  function getFormattedTimestamp() {
+    const now = new Date();
+    return now.getFullYear() +
+           String(now.getMonth() + 1).padStart(2, '0') +
+           String(now.getDate()).padStart(2, '0') +
+           String(now.getHours()).padStart(2, '0') +
+           String(now.getMinutes()).padStart(2, '0') +
+           String(now.getSeconds()).padStart(2, '0');
+  }
+
+  async function generateAndUploadPDF(ldap, pdfContent) {
+    try {
+      console.log('Starting PDF generation...');
+      
+      // Create a simpler file path
+      const cleanLDAP = sanitizeLDAP(ldap);
+      const timestamp = new Date().toISOString().split('.')[0].replace(/[:]/g, '-');
+      const filename = `${cleanLDAP}-${timestamp}.pdf`;
+      
+      console.log('Using file path:', filename);
+      
+      // Generate PDF
+      const pdfBlob = await html2pdf().set({
+        margin: [5, 10, 5, 10],
+        filename: filename,
+        image: { 
+          type: 'jpeg',
+          quality: 0.7
+        },
+        html2canvas: { 
+          scale: 1,
+          useCORS: true
+        },
+        jsPDF: { 
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+          compress: true,
+          compressPdf: true
+        }
+      }).from(pdfContent).output('blob');
+      
+      console.log('PDF generated, attempting upload...');
+
+      // Upload to Supabase
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('quiz-pdfs')
+        .upload(filename, pdfBlob, {
+          contentType: 'application/pdf',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('PDF uploaded successfully:', filename);
+      return filename;
+    } catch (err) {
+      console.error('PDF generation/upload error:', err);
+      if (err.message) console.error('Error message:', err.message);
+      if (err.statusCode) console.error('Status code:', err.statusCode);
+      return null;
+    }
+  }
+
+  async function saveQuizResultToSupabase(ldap, quizType, scoreText, scoreValue, supervisor, market, timeTaken, pdfUrl = null) {
     console.log("Attempting to save quiz result to Supabase...");
-    console.log("Data:", { ldap, quizType, scoreText, scoreValue, supervisor, market, timeTaken });
     try {
       const { data, error } = await supabase
         .from('Quiz Results')
@@ -385,20 +446,53 @@
             score_value: scoreValue,
             supervisor: supervisor,
             market: market,
-            time_taken: timeTaken
+            time_taken: timeTaken,
+            pdf_url: pdfUrl
           }
         ]);
-      if (error) {
-        console.error('Supabase insert error:', error);
-        alert('Failed to save quiz result to Supabase.');
-        throw error;
-      } else {
-        console.log('Supabase insert success:', data);
-      }
+
+      if (error) throw error;
+      console.log('Quiz result saved successfully:', data);
+      return data;
     } catch (err) {
       console.error('Error saving to Supabase:', err);
-      alert('Error saving to Supabase.');
+      alert('Error saving to Supabase. Your results may not be properly recorded.');
       throw err;
+    }
+  }
+
+  async function showFinalScore() {
+    // Compute time taken in seconds
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+    const percentage = ((score / quizQuestions.length) * 100).toFixed(2);
+    const ldap = userData.ldap;
+    const supervisor = userData.supervisor;
+    const market = userData.market;
+    const textScore = `${score}/${quizQuestions.length} (${percentage}%)`;
+    const numericScore = parseFloat((score / quizQuestions.length).toFixed(2));
+
+    try {
+      // First build the summary HTML to create the PDF content
+      buildSummaryHTML(ldap, textScore, numericScore, timeTaken);
+
+      // Now try to generate and upload the PDF
+      const pdfContent = document.getElementById('pdf-content');
+      let pdfUrl = null;
+      
+      if (pdfContent) {
+        pdfUrl = await generateAndUploadPDF(ldap, pdfContent);
+      }
+
+      // Save the quiz result with the PDF URL (if generation was successful)
+      await saveQuizResultToSupabase(ldap, selectedQuizType, textScore, numericScore, supervisor, market, timeTaken, pdfUrl);
+      
+      if (!pdfUrl) {
+        console.warn('Quiz result saved but PDF generation failed');
+        alert('Your quiz result has been saved, but there was an issue generating the PDF. You can still download it manually using the button below.');
+      }
+    } catch (error) {
+      console.error('Error in showFinalScore:', error);
+      alert('There was an error saving your results. Please take a screenshot or download the PDF manually.');
     }
   }
 
@@ -406,13 +500,15 @@
     const percentage = ((numericScore) * 100).toFixed(2);
     const quizContainer = document.getElementById('quiz-container');
     let summaryHTML = `
-      <div id="pdf-content">
+      <div id="pdf-content" style="background: white; padding: 20px; font-family: Arial, sans-serif;">
         <div style="margin-bottom: 20px;">
           <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
           <h3 style="margin: 0;">LDAP: ${ldap}</h3>
           <p style="margin: 0;">Time Taken: ${timeTaken} seconds</p>
         </div>
-        <div id="summary"><h2>Detailed Summary:</h2><ul>
+        <div id="summary">
+          <h2 style="margin-top: 0;">Detailed Summary:</h2>
+          <ul style="list-style: none; padding: 0;">
     `;
     userAnswers.forEach((answer, index) => {
       let userAnswerText = '';
@@ -427,9 +523,9 @@
         correctAnswerText = answer.options[answer.correct];
       }
       summaryHTML += `
-        <li class="summary-item">
-          <div class="question-block">
-            <p class="question-text">Question ${index + 1}: ${answer.question}</p>
+        <li class="summary-item" style="page-break-inside: avoid; margin-bottom: 30px;">
+          <div class="question-block" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+            <p class="question-text" style="font-weight: bold;">Question ${index + 1}: ${answer.question}</p>
             <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
             <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerText}</p>
             ${!answer.isCorrect ? `<p class="correct">Correct Answer: ${correctAnswerText}</p>` : ''}
@@ -447,12 +543,29 @@
     document.getElementById('download-pdf-button').addEventListener('click', () => {
       const element = document.getElementById('pdf-content');
       const opt = {
-        margin: [10, 15, 10, 15],
+        margin: [5, 10, 5, 10],
         filename: `quiz-results-${ldap}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: true, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'avoid-all'], avoid: '.question-block' }
+        image: { 
+          type: 'jpeg',
+          quality: 0.7
+        },
+        html2canvas: { 
+          scale: 1,
+          useCORS: true
+        },
+        jsPDF: { 
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+          compress: true,
+          compressPdf: true
+        },
+        pagebreak: { 
+          mode: ['css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: '.question-block, .summary-item'
+        }
       };
       const clone = element.cloneNode(true);
       document.body.appendChild(clone);

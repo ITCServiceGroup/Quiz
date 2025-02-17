@@ -1,0 +1,142 @@
+<!-- quiz.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Mode - Service Tech Advanced Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* PDF-specific styles */
+    #pdf-content {
+      background: white;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    #pdf-content .question-block {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    #pdf-content .correct {
+      color: #28a745;
+      font-weight: bold;
+    }
+    #pdf-content .incorrect {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    #pdf-content .question-text {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    #pdf-content .question-type {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    #pdf-content .explanation {
+      margin-top: 10px;
+      padding: 8px;
+      background: #f8f9fa;
+      border-left: 3px solid #1c447f;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <!-- Branding Image -->
+    <!-- <img src="assets/images/logo.png" alt="Service Tech Logo" id="branding-logo" /> -->
+    <h1 id="quiz-title">Service Tech Advanced Quiz</h1>
+    
+    <!-- Progress Bar Moved Below the Title -->
+    <div id="progress-bar-container">
+      <div id="progress-bar"></div>
+    </div>
+    
+    <div id="ldap-field">
+      <div class="fields-inline">
+        <div class="field-group">
+          <label for="ldap-input">LDAP:</label>
+          <input 
+            type="text" 
+            id="ldap-input" 
+            name="ldap-input" 
+            autocomplete="off" 
+            autocorrect="off" 
+            autocapitalize="none" 
+            spellcheck="false" 
+          />
+        </div>
+        <div class="field-group">
+          <label for="supervisor-select">Supervisor:</label>
+          <select id="supervisor-select">
+            <option value="Jose Guajardo (JC)">Jose Guajardo (JC)</option>
+            <option value="Julian Lanas">Julian Lanas</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="market-select">Market:</label>
+          <select id="market-select">
+            <option value="Austin">Austin</option>
+          </select>
+        </div>
+      </div>
+      
+      <button id="back-to-menu-button">Back to Menu</button>
+      <button id="ldap-next-button">Next</button>
+      <p id="ldap-error" class="error-message" style="display: none;">
+        Please enter your LDAP to proceed.
+      </p>
+    </div>
+
+<!-- Confirmation Popup -->
+    <div id="popup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <h2>Warning!</h2>
+        <p>This quiz has some questions that require more than one answer.</p>
+        <p>Pay attention to the question type and read all of the questions thoroughly.</p>
+        <button id="confirm-begin-quiz">Confirm &amp; Begin Quiz</button>
+      </div>
+    </div>
+    
+    <div id="quiz-content" style="display: none;">
+      <div id="question-number"></div>
+      <div id="question-type" class="question-type"></div>
+      <div id="question-text"></div>
+      <ul id="options-list"></ul>
+      <div id="action-buttons">
+        <button id="next-button" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+  <!-- Include html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <!-- Your question bank -->
+  <script src="questions.js"></script>
+
+  <!-- Supabase client library (UMD) from unpkg CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.5/dist/umd/supabase.min.js"></script> 
+  <script>
+    // Initialize Supabase client
+    const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co"; // Your actual Supabase URL
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbXdwb293amh6YXd2bWl5b2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTA1NDYsImV4cCI6MjA1MzgyNjU0Nn0.Ul1dRzTe7QQ81lmgTXNZ1QEYtmWDzzUdVP-xPKZXKQI"; // Your actual anon key
+
+    // Initialize Supabase client
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    // Expose supabaseClient globally for debugging purposes (optional)
+    window.supabase = supabaseClient;
+
+    // Log to verify initialization
+    console.log('Supabase client initialized:', supabaseClient);
+  </script>
+
+  <!-- Your main quiz logic -->
+  <script src="quiz.js"></script>
+</body>
+</html>
