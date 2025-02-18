@@ -418,36 +418,40 @@ body {
   font-weight: bold;   /* Optional: make the timer text bold for better visibility */
 }
 
-/* Popup Overlay */
+/* Popup Styles */
 .popup {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5); /* semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000; /* ensure popup is on top */
+  align-items: center;
+  z-index: 1000;
 }
 
-/* Popup Content Box */
 .popup-content {
   background-color: #f8f9fa; /* Light gray background */
   padding: 30px 40px;
   border-radius: 8px;
-  text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
-  width: 90%;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #1c447f; /* Updated text color */
+  animation: popupFade 0.3s ease-in-out;
 }
 
-/* Popup Paragraphs */
-.popup-content p {
-    font-size: 20px;
-    color: #1c447f; /* Updated text color */
-    margin-bottom: 20px;
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Confirm Button */
@@ -473,7 +477,7 @@ body {
     max-width: 800px;
     margin: 30px auto;
     position: relative;
-    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    background: linear-gradient(to bottom, #ffffff, #eaeaea);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 25px;
