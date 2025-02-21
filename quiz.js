@@ -71,11 +71,23 @@
 
   function handleLdapNext() {
     const ldapInput = document.getElementById('ldap-input').value.trim().toLowerCase();
+    const errorElement = document.getElementById('ldap-error');
+
+    // Check for empty input
     if (!ldapInput) {
-      document.getElementById('ldap-error').style.display = 'block';
+      errorElement.textContent = 'Please enter your LDAP to proceed.';
+      errorElement.style.display = 'block';
       return;
     }
-    document.getElementById('ldap-error').style.display = 'none';
+
+    // Check for @ symbol (email format)
+    if (ldapInput.includes('@')) {
+      errorElement.textContent = 'Please enter only your LDAP without "@google.com". Enter only your LDAP username.';
+      errorElement.style.display = 'block';
+      return;
+    }
+
+    errorElement.style.display = 'none';
   
     // Capture the additional fields
     const supervisor = document.getElementById('supervisor-select').value;
