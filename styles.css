@@ -345,18 +345,86 @@ body {
   margin-bottom: 12px;
 }
 
-#summary .correct {
-  color: #28a745;
+/* Answer columns layout */
+.answer-columns {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
 }
 
-#summary .incorrect {
-  color: #dc3545;
+.answer-column {
+  width: 48%;
+  padding: 4px;
+  border-radius: 4px;
 }
 
-#summary .explanation {
-  font-style: italic;
-  color: #555555;
+/* Color coding for answers */
+.summary-item[data-correct="true"] .your-answers {
+  background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.summary-item[data-correct="true"] .your-answers h4,
+.summary-item[data-correct="true"] .your-answers li {
+  color: #28a745 !important;
+}
+
+.summary-item[data-correct="false"] .your-answers {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.summary-item[data-correct="false"] .your-answers h4,
+.summary-item[data-correct="false"] .your-answers li {
+  color: #dc3545 !important;
+}
+
+.correct-answers {
+  background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.correct-answers h4,
+.correct-answers li {
+  color: #28a745 !important;
+}
+
+/* Answer list styles */
+.answer-list {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 4px 0;
+}
+
+.answer-list li {
+  margin: 2px 0;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* Column headers */
+.answer-column h4 {
+  margin: 0 0 2px 0;
+  font-size: 1.1em;
+  padding: 0 4px;
+}
+
+/* Explanation section */
+.explanation-section {
   margin-top: 8px;
+  padding: 4px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.explanation-title {
+  color: #444;
+  margin-bottom: 2px;
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+.explanation-text {
+  line-height: 1.4;
+  color: #555;
+  padding: 0 4px;
 }
 
 /* Summary Buttons */

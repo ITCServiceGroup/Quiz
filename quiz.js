@@ -535,13 +535,36 @@
         correctAnswerText = answer.options[answer.correct];
       }
       summaryHTML += `
-        <li class="summary-item" style="page-break-inside: avoid; margin-bottom: 30px;">
+        <li class="summary-item" data-correct="${answer.isCorrect}" style="page-break-inside: avoid; margin-bottom: 30px;">
           <div class="question-block" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
             <p class="question-text" style="font-weight: bold;">Question ${index + 1}: ${answer.question}</p>
             <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
-            <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">Your Answer: ${userAnswerText}</p>
-            ${!answer.isCorrect ? `<p class="correct">Correct Answer: ${correctAnswerText}</p>` : ''}
-            <p class="explanation">Explanation: ${answer.explanation}</p>
+            <div class="answer-columns">
+              <div class="answer-column your-answers">
+                <h4>Your Answer:</h4>
+                <ul class="answer-list">
+                  ${answer.type === 'check_all_that_apply'
+                    ? answer.selected.length === 0 
+                      ? '<li>No answer selected</li>'
+                      : answer.selected.map(idx => `<li>${answer.options[idx]}</li>`).join('')
+                    : `<li>${userAnswerText}</li>`
+                  }
+                </ul>
+              </div>
+              <div class="answer-column correct-answers">
+                <h4>Correct Answer:</h4>
+                <ul class="answer-list">
+                  ${answer.type === 'check_all_that_apply'
+                    ? answer.correct.map(idx => `<li>${answer.options[idx]}</li>`).join('')
+                    : `<li>${correctAnswerText}</li>`
+                  }
+                </ul>
+              </div>
+            </div>
+            <div class="explanation-section">
+              <p class="explanation-title">Explanation:</p>
+              <p class="explanation-text">${answer.explanation}</p>
+            </div>
           </div>
         </li>`;
     });
