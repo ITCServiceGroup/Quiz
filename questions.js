@@ -405,13 +405,13 @@ window.questionBank = [
     question: "A customer’s laptop won’t connect to WiFi, but other devices in the house are working fine. What steps should you take?",
     type: "check_all_that_apply",
     options: [
-      "Check if the laptop is in Airplane Mode.",
-      "Restart the router and ONT.",
+      "Factory reset the router",
+      "Upgrade the customer's internet plan.",
       "Forget and reconnect to the WiFi network on the laptop.",
-      "Update the WiFi driver on the laptop."
+      "Replace the router’s Ethernet cable."
     ],
-    correctAnswerIndices: [0, 2, 3],
-    explanation: "Airplane Mode disables wireless communication. Forgetting and reconnecting to the network can fix connection errors. If the issue persists, outdated drivers could be the cause."
+    correctAnswerIndices: [0, 2],
+    explanation: "Factory resetting the router can resolve device-specific connection issues, and forgetting then reconnecting to the WiFi network often fixes connection errors related to saved network settings. Upgrading the internet plan or replacing Ethernet cables won't help, since the issue is isolated to a single device connecting via WiFi."
   },
   {
     question: "A customer complains about slow internet speeds despite having a strong signal. What troubleshooting steps should you take?",
@@ -589,7 +589,7 @@ window.questionBank = [
     options: [
       "The ONT’s optical power is too low.",
       "The smart devices use 2.4 GHz WiFi.",
-      "The microwave is blocking the fiber signal.",
+      "Too many devices are connected to the network.",
       "The router’s firmware is outdated."
     ],
     correctAnswerIndex: 1,

@@ -327,10 +327,18 @@
     if (question.type === 'check_all_that_apply') {
       const selected = question.userSelectedAnswerIndices;
       const correct = question.correctAnswerIndices;
-      const isCorrect = arraysEqual(selected.sort(), correct.sort());
-      if (isCorrect) {
-        score++;
-      }
+      
+      // Calculate partial credit
+      let correctCount = 0;
+      selected.forEach(selectedIndex => {
+        if (correct.includes(selectedIndex)) {
+          correctCount++;
+        }
+      });
+      
+      const partialCredit = correctCount / correct.length;
+      score += partialCredit;
+      
       userAnswers.push({
         question: question.question,
         type: question.type,
@@ -338,7 +346,8 @@
         correct: correct,
         explanation: question.explanation,
         options: question.options,
-        isCorrect: isCorrect
+        isCorrect: correctCount === correct.length,
+        partialCredit: partialCredit
       });
     } else {
       const selected = question.userSelectedAnswerIndex;
@@ -361,8 +370,10 @@
     if (currentQuestionIndex < quizQuestions.length) {
       displayQuestion(currentQuestionIndex);
     } else {
-      endTimer();
-      showFinalScore();
+    endTimer();
+    // Round the final score to 2 decimal places before showing
+    score = Math.round(score * 100) / 100;
+    showFinalScore();
     }
   }
 
@@ -513,11 +524,11 @@
     const quizContainer = document.getElementById('quiz-container');
     let summaryHTML = `
       <div id="pdf-content" style="background: white; padding: 20px; font-family: Arial, sans-serif;">
-        <div style="margin-bottom: 20px;">
-          <h2 style="margin-bottom: 5px;">Score: ${score}/${quizQuestions.length} (${percentage}%)</h2>
-          <h3 style="margin: 0;">LDAP: ${ldap}</h3>
-          <p style="margin: 0;">Time Taken: ${timeTaken} seconds</p>
-        </div>
+      <div style="margin-bottom: 20px;">
+        <h2 style="margin-bottom: 5px;">Score: ${score.toFixed(2)}/${quizQuestions.length} (${percentage}%)</h2>
+        <h3 style="margin: 0;">LDAP: ${ldap}</h3>
+        <p style="margin: 0;">Time Taken: ${Math.floor(timeTaken / 60)} minutes ${timeTaken % 60} seconds</p>
+      </div>
         <div id="summary">
           <h2 style="margin-top: 0;">Detailed Summary:</h2>
           <ul style="list-style: none; padding: 0;">
@@ -538,7 +549,11 @@
         <li class="summary-item" data-correct="${answer.isCorrect}" style="page-break-inside: avoid; margin-bottom: 30px;">
           <div class="question-block" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
             <p class="question-text" style="font-weight: bold;">Question ${index + 1}: ${answer.question}</p>
-            <p class="question-type">Type: ${formatQuestionType(answer.type)}</p>
+            <p class="question-type">Type: ${formatQuestionType(answer.type)}
+              ${answer.type === 'check_all_that_apply' 
+                ? ` (Score: ${answer.partialCredit.toFixed(2)} point${answer.partialCredit === 1 ? '' : 's'})`
+                : ''}
+            </p>
             <div class="answer-columns">
               <div class="answer-column your-answers">
                 <h4>Your Answer:</h4>
