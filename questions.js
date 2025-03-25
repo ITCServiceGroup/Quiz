@@ -438,7 +438,7 @@ window.questionBank = [
     explanation: "Firmware updates can resolve known router bugs. WiFi analyzer tools help identify channel congestion or interference. Overheating or proximity to interference (e.g., microwaves) can also disrupt WiFi. Fiber connection issues would affect all devices, not just WiFi."
   },
   {
-    question: "What can the WiFi channel cause problems in a network?",
+    question: "How can the WiFi channel cause problems in a network?",
     type: "multiple_choice",
     options: [
       "Using higher channels always increases security vulnerabilities.",
